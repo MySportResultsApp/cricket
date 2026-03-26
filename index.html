@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Pulse - Overview</title>
+  <style>
+    :root {
+      --bg: #07110d;
+      --bg-soft: #0c1712;
+      --panel: #0f1d17;
+      --panel-2: #13241c;
+      --border: #21362c;
+      --accent: #8dff66;
+      --accent-2: #43d17d;
+      --text: #edf7f1;
+      --muted: #8da59a;
+      --live: #8dff66;
+      --upcoming: #6ed8ff;
+      --final: #9aaea6;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(141,255,102,0.07), transparent 28%),
+        radial-gradient(circle at top left, rgba(67,209,125,0.06), transparent 24%),
+        linear-gradient(180deg, #06100c 0%, #09140f 100%);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand h1 span {
+      color: var(--accent);
+    }
+
+    .brand p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.92rem;
+    }
+
+    .header-side {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #last-updated {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .refresh-btn {
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07110d;
+      font-weight: 800;
+      font-size: 0.84rem;
+      padding: 10px 15px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .refresh-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: 0.15s ease;
+    }
+
+    .nav a:hover {
+      border-color: rgba(141,255,102,0.34);
+      color: #fff;
+    }
+
+    .nav a.active {
+      background: linear-gradient(135deg, rgba(141,255,102,0.18), rgba(67,209,125,0.12));
+      border-color: rgba(141,255,102,0.38);
+      color: var(--accent);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-card,
+    .stat-card,
+    .section-card,
+    .match-card,
+    .headline-card {
+      background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 22px;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(141,255,102,0.10) 0%, transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.45rem, 3vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      max-width: 720px;
+    }
+
+    .hero-subtitle {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 760px;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .stats {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stat-card {
+      padding: 18px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+    }
+
+    .stat-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-badge {
+      font-size: 0.7rem;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #07110d;
+      background: var(--accent);
+      font-weight: 800;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    .match-card {
+      padding: 16px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .series-name {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+    }
+
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 6px 9px;
+      white-space: nowrap;
+    }
+
+    .status-live {
+      background: rgba(141,255,102,0.14);
+      color: var(--live);
+      border: 1px solid rgba(141,255,102,0.28);
+    }
+
+    .status-upcoming {
+      background: rgba(110,216,255,0.12);
+      color: var(--upcoming);
+      border: 1px solid rgba(110,216,255,0.22);
+    }
+
+    .status-final {
+      background: rgba(154,174,166,0.12);
+      color: var(--final);
+      border: 1px solid rgba(154,174,166,0.22);
+    }
+
+    .teams {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .team-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .team-name {
+      font-size: 0.96rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .team-score {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .team-score.muted {
+      color: var(--text);
+    }
+
+    .match-meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .match-note {
+      margin-top: 10px;
+      color: var(--text);
+      font-size: 0.83rem;
+      line-height: 1.45;
+    }
+
+    .headlines-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 14px;
+    }
+
+    .headline-card {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .headline-img {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      background: #0b1511;
+      display: block;
+    }
+
+    .headline-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .headline-tag {
+      color: var(--accent);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .headline-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      line-height: 1.38;
+    }
+
+    .headline-desc {
+      color: #d6e4dc;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .headline-time {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+
+    .loading,
+    .empty,
+    .error {
+      text-align: center;
+      padding: 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
+      border: 1px solid var(--border);
+      color: var(--muted);
+      box-shadow: var(--shadow);
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .brand h1 {
+        font-size: 1.55rem;
+      }
+
+      .hero-card,
+      .stat-card,
+      .match-card,
+      .headline-card {
+        border-radius: 16px;
+      }
+
+      .team-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .team-score {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <h1>Cricket <span>Pulse</span></h1>
+        <p>Live scores, recent results, upcoming fixtures and latest headlines.</p>
+      </div>
+
+      <div class="header-side">
+        <span id="last-updated">Loading...</span>
+        <button class="refresh-btn" onclick="loadOverview()">↻ Refresh</button>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <a href="index.html" class="active">Overview</a>
+      <a href="live.html">Live</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="news.html">News</a>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-card">
+        <div>
+          <div class="hero-kicker">Cricket Dashboard</div>
+          <div class="hero-title">A focused cricket-only tracker with live matches, quick score views and clean match cards.</div>
+          <div class="hero-subtitle">This overview pulls the strongest current cricket items into one screen: live action first, recent finishes next, upcoming fixtures after that, plus non-clickable headline cards.</div>
+        </div>
+
+        <div class="hero-strip">
+          <div class="pill">4 linked pages</div>
+          <div class="pill">Live-first layout</div>
+          <div class="pill">Compact score cards</div>
+          <div class="pill">Headline cards without links</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Live Matches</div>
+          <div class="stat-value" id="live-count">—</div>
+          <div class="stat-note">Current in-progress matches found across the overview feed.</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Upcoming Matches</div>
+          <div class="stat-value" id="upcoming-count">—</div>
+          <div class="stat-note">Scheduled matches from the near-term fixtures window.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">🏏 Live Matches <span class="section-badge">Now</span></div>
+        <div class="section-sub">In-progress scorecards shown first.</div>
+      </div>
+      <div id="live-grid" class="matches-grid">
+        <div class="loading">Loading live matches...</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">✅ Recent Results</div>
+        <div class="section-sub">Most recent completed scorecards.</div>
+      </div>
+      <div id="recent-grid" class="matches-grid">
+        <div class="loading">Loading recent results...</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">📅 Upcoming Fixtures</div>
+        <div class="section-sub">Next scheduled matches from the current feed window.</div>
+      </div>
+      <div id="upcoming-grid" class="matches-grid">
+        <div class="loading">Loading fixtures...</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">📰 Latest Headlines</div>
+        <div class="section-sub">Cards are intentionally not clickable.</div>
+      </div>
+      <div id="headlines-grid" class="headlines-grid">
+        <div class="loading">Loading headlines...</div>
+      </div>
+    </section>
+
+    <footer>
+      Cricket Pulse · Auto-refresh every 5 minutes
+    </footer>
+  </div>
+
+  <script>
+    const API_BASE = "https://site.api.espn.com/apis/site/v2/sports";
+    const CRICKET_PATH = "cricket/ipl";
+
+    function toDateKey(date) {
+      return date.toISOString().slice(0, 10).replace(/-/g, "");
+    }
+
+    function addDays(baseDate, amount) {
+      const d = new Date(baseDate);
+      d.setDate(d.getDate() + amount);
+      return d;
+    }
+
+    async function fetchJSON(url) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function formatDateTime(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function formatShortDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    function timeAgo(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      const diff = (Date.now() - d.getTime()) / 1000;
+
+      if (diff < 3600) return `${Math.max(1, Math.round(diff / 60))}m ago`;
+      if (diff < 86400) return `${Math.round(diff / 3600)}h ago`;
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    }
+
+    function cleanText(value, fallback = "") {
+      if (value === null || value === undefined || value === "") return fallback;
+      return String(value).trim();
+    }
+
+    function competitorScore(competitor) {
+      const score = competitor?.score;
+      if (score === null || score === undefined || score === "") return "—";
+      if (typeof score === "object") {
+        return cleanText(score.displayValue, "—");
+      }
+      return cleanText(score, "—");
+    }
+
+    function teamName(competitor) {
+      return (
+        competitor?.team?.shortDisplayName ||
+        competitor?.team?.displayName ||
+        competitor?.team?.name ||
+        "Team"
+      );
+    }
+
+    function eventId(event) {
+      return event?.id || `${event?.name || ""}_${event?.date || ""}`;
+    }
+
+    function eventStatus(event) {
+      const status = event?.competitions?.[0]?.status?.type;
+      if (!status) return "upcoming";
+      if (status.state === "in") return "live";
+      if (status.completed) return "final";
+      return "upcoming";
+    }
+
+    function eventStatusLabel(event) {
+      const status = event?.competitions?.[0]?.status?.type;
+      if (!status) return "Scheduled";
+      if (status.state === "in") {
+        const clock = cleanText(event?.competitions?.[0]?.status?.displayClock);
+        return clock ? `Live · ${clock}` : "Live";
+      }
+      if (status.completed) return "Final";
+      return "Upcoming";
+    }
+
+    function sortEvents(events, direction = "asc") {
+      return [...events].sort((a, b) => {
+        const aTime = new Date(a.date).getTime();
+        const bTime = new Date(b.date).getTime();
+        return direction === "asc" ? aTime - bTime : bTime - aTime;
+      });
+    }
+
+    function uniqueEvents(events) {
+      const seen = new Set();
+      const list = [];
+      for (const event of events) {
+        const id = eventId(event);
+        if (seen.has(id)) continue;
+        seen.add(id);
+        list.push(event);
+      }
+      return list;
+    }
+
+    function cardHTML(event) {
+      const competition = event?.competitions?.[0];
+      const competitors = competition?.competitors || [];
+      if (competitors.length < 2) return "";
+
+      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
+      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
+      const status = eventStatus(event);
+      const statusClass =
+        status === "live" ? "status-live" :
+        status === "final" ? "status-final" :
+        "status-upcoming";
+
+      const scoreA = competitorScore(home);
+      const scoreB = competitorScore(away);
+
+      const note =
+        cleanText(competition?.status?.type?.shortDetail) ||
+        cleanText(event?.status?.type?.shortDetail) ||
+        cleanText(event?.shortName);
+
+      return `
+        <div class="match-card">
+          <div class="card-top">
+            <div class="series-name">${cleanText(event?.season?.type?.name, "Match")} · ${cleanText(event?.shortName || event?.name, "Cricket Match")}</div>
+            <div class="status-badge ${statusClass}">${eventStatusLabel(event)}</div>
+          </div>
+
+          <div class="teams">
+            <div class="team-row">
+              <div class="team-name">${teamName(home)}</div>
+              <div class="team-score ${status === "upcoming" ? "muted" : ""}">${status === "upcoming" ? "Scheduled" : scoreA}</div>
+            </div>
+
+            <div class="team-row">
+              <div class="team-name">${teamName(away)}</div>
+              <div class="team-score ${status === "upcoming" ? "muted" : ""}">${status === "upcoming" ? "Scheduled" : scoreB}</div>
+            </div>
+          </div>
+
+          <div class="match-meta">
+            <div>${formatDateTime(event.date)}</div>
+            <div>${cleanText(competition?.venue?.fullName, "Venue TBA")}</div>
+          </div>
+
+          ${note ? `<div class="match-note">${note}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function renderMatches(containerId, events, emptyText) {
+      const container = document.getElementById(containerId);
+
+      if (!events.length) {
+        container.innerHTML = `<div class="empty">${emptyText}</div>`;
+        return;
+      }
+
+      container.innerHTML = events.map(cardHTML).filter(Boolean).join("");
+    }
+
+    function articleDescription(article) {
+      return (
+        cleanText(article.description) ||
+        cleanText(article.story) ||
+        cleanText(article.summary) ||
+        "No additional description available."
+      );
+    }
+
+    function articleImage(article) {
+      if (Array.isArray(article.images) && article.images.length) {
+        const item = article.images.find(img => img.url) || article.images[0];
+        return cleanText(item?.url);
+      }
+      return "";
+    }
+
+    function renderHeadlines(items) {
+      const container = document.getElementById("headlines-grid");
+
+      if (!items.length) {
+        container.innerHTML = `<div class="empty">No headlines available right now.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div class="headline-card">
+          ${item.image ? `<img class="headline-img" src="${item.image}" alt="" onerror="this.style.display='none'">` : ""}
+          <div class="headline-body">
+            <div class="headline-tag">Cricket News</div>
+            <div class="headline-title">${item.title}</div>
+            <div class="headline-desc">${item.description}</div>
+            <div class="headline-time">${timeAgo(item.published)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function collectScoreboardEvents() {
+      const today = new Date();
+      const offsets = [-2, -1, 0, 1, 2, 3, 4, 5];
+      const allEvents = [];
+
+      await Promise.allSettled(offsets.map(async offset => {
+        const target = addDays(today, offset);
+        try {
+          const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/scoreboard?dates=${toDateKey(target)}`);
+          if (Array.isArray(data?.events)) {
+            allEvents.push(...data.events);
+          }
+        } catch (e) {
+        }
+      }));
+
+      return uniqueEvents(allEvents);
+    }
+
+    async function collectNews() {
+      try {
+        const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/news`);
+        const articles = Array.isArray(data?.articles) ? data.articles : [];
+        const seen = new Set();
+        const items = [];
+
+        for (const article of articles) {
+          const title = cleanText(article.headline);
+          if (!title) continue;
+
+          const key = title.toLowerCase();
+          if (seen.has(key)) continue;
+          seen.add(key);
+
+          items.push({
+            title,
+            description: articleDescription(article),
+            image: articleImage(article),
+            published: article.published
+          });
+        }
+
+        return items.slice(0, 8);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function loadOverview() {
+      document.getElementById("last-updated").textContent = "Refreshing...";
+      document.getElementById("live-grid").innerHTML = `<div class="loading">Loading live matches...</div>`;
+      document.getElementById("recent-grid").innerHTML = `<div class="loading">Loading recent results...</div>`;
+      document.getElementById("upcoming-grid").innerHTML = `<div class="loading">Loading fixtures...</div>`;
+      document.getElementById("headlines-grid").innerHTML = `<div class="loading">Loading headlines...</div>`;
+
+      try {
+        const [events, headlines] = await Promise.all([
+          collectScoreboardEvents(),
+          collectNews()
+        ]);
+
+        const now = Date.now();
+
+        const liveEvents = sortEvents(
+          events.filter(event => eventStatus(event) === "live"),
+          "asc"
+        ).slice(0, 6);
+
+        const recentEvents = sortEvents(
+          events.filter(event => eventStatus(event) === "final" && new Date(event.date).getTime() <= now),
+          "desc"
+        ).slice(0, 6);
+
+        const upcomingEvents = sortEvents(
+          events.filter(event => eventStatus(event) === "upcoming" && new Date(event.date).getTime() >= now - 30 * 60 * 1000),
+          "asc"
+        ).slice(0, 6);
+
+        renderMatches("live-grid", liveEvents, "No live matches at the moment.");
+        renderMatches("recent-grid", recentEvents, "No recent completed matches found.");
+        renderMatches("upcoming-grid", upcomingEvents, "No upcoming fixtures found.");
+        renderHeadlines(headlines);
+
+        document.getElementById("live-count").textContent = String(liveEvents.length);
+        document.getElementById("upcoming-count").textContent = String(upcomingEvents.length);
+
+        document.getElementById("last-updated").textContent =
+          "Updated " + new Date().toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+      } catch (error) {
+        document.getElementById("live-grid").innerHTML = `<div class="error">Could not load live matches.</div>`;
+        document.getElementById("recent-grid").innerHTML = `<div class="error">Could not load recent results.</div>`;
+        document.getElementById("upcoming-grid").innerHTML = `<div class="error">Could not load fixtures.</div>`;
+        document.getElementById("headlines-grid").innerHTML = `<div class="error">Could not load headlines.</div>`;
+        document.getElementById("live-count").textContent = "—";
+        document.getElementById("upcoming-count").textContent = "—";
+        document.getElementById("last-updated").textContent = "Update failed";
+      }
+    }
+
+    loadOverview();
+    setInterval(loadOverview, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
