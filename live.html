@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Pulse - Live</title>
+  <style>
+    :root {
+      --bg: #07110d;
+      --bg-soft: #0c1712;
+      --panel: #0f1d17;
+      --panel-2: #13241c;
+      --border: #21362c;
+      --accent: #8dff66;
+      --accent-2: #43d17d;
+      --text: #edf7f1;
+      --muted: #8da59a;
+      --live: #8dff66;
+      --upcoming: #6ed8ff;
+      --final: #9aaea6;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(141,255,102,0.07), transparent 28%),
+        radial-gradient(circle at top left, rgba(67,209,125,0.06), transparent 24%),
+        linear-gradient(180deg, #06100c 0%, #09140f 100%);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand h1 span {
+      color: var(--accent);
+    }
+
+    .brand p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.92rem;
+    }
+
+    .header-side {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #last-updated {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .refresh-btn {
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07110d;
+      font-weight: 800;
+      font-size: 0.84rem;
+      padding: 10px 15px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .refresh-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: 0.15s ease;
+    }
+
+    .nav a:hover {
+      border-color: rgba(141,255,102,0.34);
+      color: #fff;
+    }
+
+    .nav a.active {
+      background: linear-gradient(135deg, rgba(141,255,102,0.18), rgba(67,209,125,0.12));
+      border-color: rgba(141,255,102,0.38);
+      color: var(--accent);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-card,
+    .summary-card,
+    .match-card,
+    .empty-box,
+    .error-box {
+      background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 22px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 170px;
+      height: 170px;
+      background: radial-gradient(circle, rgba(141,255,102,0.1) 0%, transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.45rem, 3vw, 2.35rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      max-width: 760px;
+    }
+
+    .hero-subtitle {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 760px;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-card {
+      padding: 18px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .summary-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+    }
+
+    .summary-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-badge {
+      font-size: 0.7rem;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #07110d;
+      background: var(--accent);
+      font-weight: 800;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 14px;
+    }
+
+    .match-card {
+      padding: 16px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .series-name {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+    }
+
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 6px 9px;
+      white-space: nowrap;
+    }
+
+    .status-live {
+      background: rgba(141,255,102,0.14);
+      color: var(--live);
+      border: 1px solid rgba(141,255,102,0.28);
+    }
+
+    .teams {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .team-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .team-name {
+      font-size: 0.96rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .team-score {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .match-meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .match-note {
+      margin-top: 10px;
+      color: var(--text);
+      font-size: 0.83rem;
+      line-height: 1.45;
+    }
+
+    .empty-box,
+    .error-box {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .error-box {
+      color: var(--danger);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .brand h1 {
+        font-size: 1.55rem;
+      }
+
+      .hero-card,
+      .summary-card,
+      .match-card,
+      .empty-box,
+      .error-box {
+        border-radius: 16px;
+      }
+
+      .team-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .team-score {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <h1>Cricket <span>Pulse</span></h1>
+        <p>Dedicated live cricket view with compact scorecards and fast refresh.</p>
+      </div>
+
+      <div class="header-side">
+        <span id="last-updated">Loading...</span>
+        <button class="refresh-btn" onclick="loadLivePage()">↻ Refresh</button>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <a href="index.html">Overview</a>
+      <a href="live.html" class="active">Live</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="news.html">News</a>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-card">
+        <div>
+          <div class="hero-kicker">Live Cricket</div>
+          <div class="hero-title">Focused on matches currently in progress, with a clean scoreboard-first layout.</div>
+          <div class="hero-subtitle">This page prioritizes ongoing matches only. If there are no live matches at the moment, a recent fallback block is shown below so the page still feels useful and active.</div>
+        </div>
+
+        <div class="hero-strip">
+          <div class="pill">Live-first page</div>
+          <div class="pill">Auto-refresh every 60 sec</div>
+          <div class="pill">Compact score cards</div>
+          <div class="pill">Works with shared navigation</div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">Live Matches</div>
+          <div class="summary-value" id="live-count">—</div>
+          <div class="summary-note">Matches currently marked in progress by the feed.</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-label">Recent Fallback</div>
+          <div class="summary-value" id="recent-count">—</div>
+          <div class="summary-note">Shown below only when there are no live matches.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">🏏 Live Scorecards <span class="section-badge">Now</span></div>
+        <div class="section-sub">Current matches only.</div>
+      </div>
+
+      <div id="live-grid" class="matches-grid">
+        <div class="empty-box">Loading live matches...</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">✅ Recent Matches</div>
+        <div class="section-sub">Fallback block when live action is unavailable.</div>
+      </div>
+
+      <div id="recent-grid" class="matches-grid">
+        <div class="empty-box">Loading recent matches...</div>
+      </div>
+    </section>
+
+    <footer>
+      Cricket Pulse · Live page refreshes every 60 seconds
+    </footer>
+  </div>
+
+  <script>
+    const API_BASE = "https://site.api.espn.com/apis/site/v2/sports";
+    const CRICKET_PATH = "cricket/ipl";
+
+    function toDateKey(date) {
+      return date.toISOString().slice(0, 10).replace(/-/g, "");
+    }
+
+    function addDays(baseDate, amount) {
+      const d = new Date(baseDate);
+      d.setDate(d.getDate() + amount);
+      return d;
+    }
+
+    async function fetchJSON(url) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function formatDateTime(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function cleanText(value, fallback = "") {
+      if (value === null || value === undefined || value === "") return fallback;
+      return String(value).trim();
+    }
+
+    function competitorScore(competitor) {
+      const score = competitor?.score;
+      if (score === null || score === undefined || score === "") return "—";
+      if (typeof score === "object") {
+        return cleanText(score.displayValue, "—");
+      }
+      return cleanText(score, "—");
+    }
+
+    function teamName(competitor) {
+      return (
+        competitor?.team?.shortDisplayName ||
+        competitor?.team?.displayName ||
+        competitor?.team?.name ||
+        "Team"
+      );
+    }
+
+    function eventId(event) {
+      return event?.id || `${event?.name || ""}_${event?.date || ""}`;
+    }
+
+    function eventStatus(event) {
+      const status = event?.competitions?.[0]?.status?.type;
+      if (!status) return "upcoming";
+      if (status.state === "in") return "live";
+      if (status.completed) return "final";
+      return "upcoming";
+    }
+
+    function eventStatusLabel(event) {
+      const status = event?.competitions?.[0]?.status?.type;
+      if (!status) return "Live";
+      const clock = cleanText(event?.competitions?.[0]?.status?.displayClock);
+      return clock ? `Live · ${clock}` : "Live";
+    }
+
+    function sortEvents(events, direction = "asc") {
+      return [...events].sort((a, b) => {
+        const aTime = new Date(a.date).getTime();
+        const bTime = new Date(b.date).getTime();
+        return direction === "asc" ? aTime - bTime : bTime - aTime;
+      });
+    }
+
+    function uniqueEvents(events) {
+      const seen = new Set();
+      const list = [];
+      for (const event of events) {
+        const id = eventId(event);
+        if (seen.has(id)) continue;
+        seen.add(id);
+        list.push(event);
+      }
+      return list;
+    }
+
+    function cardHTML(event, isLive) {
+      const competition = event?.competitions?.[0];
+      const competitors = competition?.competitors || [];
+      if (competitors.length < 2) return "";
+
+      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
+      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
+      const note =
+        cleanText(competition?.status?.type?.shortDetail) ||
+        cleanText(event?.status?.type?.shortDetail) ||
+        cleanText(event?.shortName);
+
+      return `
+        <div class="match-card">
+          <div class="card-top">
+            <div class="series-name">${cleanText(event?.season?.type?.name, "Match")} · ${cleanText(event?.shortName || event?.name, "Cricket Match")}</div>
+            <div class="status-badge status-live">${isLive ? eventStatusLabel(event) : "Recent"}</div>
+          </div>
+
+          <div class="teams">
+            <div class="team-row">
+              <div class="team-name">${teamName(home)}</div>
+              <div class="team-score">${competitorScore(home)}</div>
+            </div>
+
+            <div class="team-row">
+              <div class="team-name">${teamName(away)}</div>
+              <div class="team-score">${competitorScore(away)}</div>
+            </div>
+          </div>
+
+          <div class="match-meta">
+            <div>${formatDateTime(event.date)}</div>
+            <div>${cleanText(competition?.venue?.fullName, "Venue TBA")}</div>
+          </div>
+
+          ${note ? `<div class="match-note">${note}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function renderLive(containerId, events, emptyText) {
+      const container = document.getElementById(containerId);
+
+      if (!events.length) {
+        container.innerHTML = `<div class="empty-box">${emptyText}</div>`;
+        return;
+      }
+
+      container.innerHTML = events.map(event => cardHTML(event, true)).filter(Boolean).join("");
+    }
+
+    function renderRecent(containerId, events, emptyText) {
+      const container = document.getElementById(containerId);
+
+      if (!events.length) {
+        container.innerHTML = `<div class="empty-box">${emptyText}</div>`;
+        return;
+      }
+
+      container.innerHTML = events.map(event => cardHTML(event, false)).filter(Boolean).join("");
+    }
+
+    async function collectScoreboardEvents() {
+      const today = new Date();
+      const offsets = [-2, -1, 0, 1, 2];
+      const allEvents = [];
+
+      await Promise.allSettled(offsets.map(async offset => {
+        const target = addDays(today, offset);
+        try {
+          const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/scoreboard?dates=${toDateKey(target)}`);
+          if (Array.isArray(data?.events)) {
+            allEvents.push(...data.events);
+          }
+        } catch (e) {
+        }
+      }));
+
+      return uniqueEvents(allEvents);
+    }
+
+    async function loadLivePage() {
+      document.getElementById("last-updated").textContent = "Refreshing...";
+      document.getElementById("live-grid").innerHTML = `<div class="empty-box">Loading live matches...</div>`;
+      document.getElementById("recent-grid").innerHTML = `<div class="empty-box">Loading recent matches...</div>`;
+
+      try {
+        const events = await collectScoreboardEvents();
+        const now = Date.now();
+
+        const liveEvents = sortEvents(
+          events.filter(event => eventStatus(event) === "live"),
+          "asc"
+        ).slice(0, 10);
+
+        const recentEvents = sortEvents(
+          events.filter(event => eventStatus(event) === "final" && new Date(event.date).getTime() <= now),
+          "desc"
+        ).slice(0, 6);
+
+        renderLive("live-grid", liveEvents, "No live matches at the moment.");
+        renderRecent("recent-grid", recentEvents, "No recent matches available.");
+
+        document.getElementById("live-count").textContent = String(liveEvents.length);
+        document.getElementById("recent-count").textContent = String(recentEvents.length);
+
+        document.getElementById("last-updated").textContent =
+          "Updated " + new Date().toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+      } catch (error) {
+        document.getElementById("live-grid").innerHTML = `<div class="error-box">Could not load live matches.</div>`;
+        document.getElementById("recent-grid").innerHTML = `<div class="error-box">Could not load recent matches.</div>`;
+        document.getElementById("live-count").textContent = "—";
+        document.getElementById("recent-count").textContent = "—";
+        document.getElementById("last-updated").textContent = "Update failed";
+      }
+    }
+
+    loadLivePage();
+    setInterval(loadLivePage, 60 * 1000);
+  </script>
+</body>
+</html>
