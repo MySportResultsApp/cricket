@@ -142,9 +142,8 @@
 
     .hero-card,
     .stat-card,
-    .section-card,
     .match-card,
-    .headline-card {
+    .info-card {
       background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -385,58 +384,36 @@
       line-height: 1.45;
     }
 
-    .headlines-grid {
+    .info-card {
+      padding: 18px;
+    }
+
+    .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 14px;
     }
 
-    .headline-card {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-    }
-
-    .headline-img {
-      width: 100%;
-      height: 170px;
-      object-fit: cover;
-      background: #0b1511;
-      display: block;
-    }
-
-    .headline-body {
+    .mini-block {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 14px;
       padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
     }
 
-    .headline-tag {
-      color: var(--accent);
-      font-size: 0.72rem;
+    .mini-title {
+      font-size: 0.74rem;
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-weight: 800;
+      margin-bottom: 8px;
     }
 
-    .headline-title {
-      font-size: 0.95rem;
+    .mini-value {
+      font-size: 1rem;
       font-weight: 800;
-      line-height: 1.38;
-    }
-
-    .headline-desc {
-      color: #d6e4dc;
-      font-size: 0.84rem;
-      line-height: 1.5;
-    }
-
-    .headline-time {
-      color: var(--muted);
-      font-size: 0.75rem;
-      margin-top: 2px;
+      line-height: 1.35;
     }
 
     .loading,
@@ -482,7 +459,7 @@
       .hero-card,
       .stat-card,
       .match-card,
-      .headline-card {
+      .info-card {
         border-radius: 16px;
       }
 
@@ -502,7 +479,7 @@
     <header>
       <div class="brand">
         <h1>Cricket <span>Pulse</span></h1>
-        <p>Live scores, recent results, upcoming fixtures and latest headlines.</p>
+        <p>Live matches, recent results and upcoming fixtures in one place.</p>
       </div>
 
       <div class="header-side">
@@ -515,22 +492,22 @@
       <a href="index.html" class="active">Overview</a>
       <a href="live.html">Live</a>
       <a href="fixtures.html">Fixtures</a>
-      <a href="news.html">News</a>
+      <a href="recent.html">Recent</a>
     </nav>
 
     <section class="hero">
       <div class="hero-card">
         <div>
           <div class="hero-kicker">Cricket Dashboard</div>
-          <div class="hero-title">A focused cricket-only tracker with live matches, quick score views and clean match cards.</div>
-          <div class="hero-subtitle">This overview pulls the strongest current cricket items into one screen: live action first, recent finishes next, upcoming fixtures after that, plus non-clickable headline cards.</div>
+          <div class="hero-title">A cricket-only overview that pulls together live action, recent finishes and upcoming fixtures.</div>
+          <div class="hero-subtitle">Built around a simple four-page structure with shared navigation and real match cards. This overview combines multiple match categories so the screen still feels populated even when one category is quiet.</div>
         </div>
 
         <div class="hero-strip">
-          <div class="pill">4 linked pages</div>
-          <div class="pill">Live-first layout</div>
-          <div class="pill">Compact score cards</div>
-          <div class="pill">Headline cards without links</div>
+          <div class="pill">Overview</div>
+          <div class="pill">Live</div>
+          <div class="pill">Fixtures</div>
+          <div class="pill">Recent</div>
         </div>
       </div>
 
@@ -538,13 +515,13 @@
         <div class="stat-card">
           <div class="stat-label">Live Matches</div>
           <div class="stat-value" id="live-count">—</div>
-          <div class="stat-note">Current in-progress matches found across the overview feed.</div>
+          <div class="stat-note">Current in-progress matches collected across all supported match types.</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-label">Upcoming Matches</div>
           <div class="stat-value" id="upcoming-count">—</div>
-          <div class="stat-note">Scheduled matches from the near-term fixtures window.</div>
+          <div class="stat-note">Scheduled matches currently available in the upcoming feed.</div>
         </div>
       </div>
     </section>
@@ -562,7 +539,7 @@
     <section class="section">
       <div class="section-head">
         <div class="section-title">✅ Recent Results</div>
-        <div class="section-sub">Most recent completed scorecards.</div>
+        <div class="section-sub">Most recent completed matches.</div>
       </div>
       <div id="recent-grid" class="matches-grid">
         <div class="loading">Loading recent results...</div>
@@ -572,7 +549,7 @@
     <section class="section">
       <div class="section-head">
         <div class="section-title">📅 Upcoming Fixtures</div>
-        <div class="section-sub">Next scheduled matches from the current feed window.</div>
+        <div class="section-sub">Nearest scheduled matches from the feed.</div>
       </div>
       <div id="upcoming-grid" class="matches-grid">
         <div class="loading">Loading fixtures...</div>
@@ -581,11 +558,16 @@
 
     <section class="section">
       <div class="section-head">
-        <div class="section-title">📰 Latest Headlines</div>
-        <div class="section-sub">Cards are intentionally not clickable.</div>
+        <div class="section-title">ℹ️ Feed Snapshot</div>
+        <div class="section-sub">Quick breakdown by type.</div>
       </div>
-      <div id="headlines-grid" class="headlines-grid">
-        <div class="loading">Loading headlines...</div>
+      <div class="info-card">
+        <div class="info-grid" id="summary-grid">
+          <div class="mini-block">
+            <div class="mini-title">International</div>
+            <div class="mini-value">Loading...</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -595,18 +577,8 @@
   </div>
 
   <script>
-    const API_BASE = "https://site.api.espn.com/apis/site/v2/sports";
-    const CRICKET_PATH = "cricket/ipl";
-
-    function toDateKey(date) {
-      return date.toISOString().slice(0, 10).replace(/-/g, "");
-    }
-
-    function addDays(baseDate, amount) {
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + amount);
-      return d;
-    }
+    const API_BASE = "https://cricbuzz-live.vercel.app/v1/matches";
+    const MATCH_TYPES = ["international", "league", "domestic", "women"];
 
     async function fetchJSON(url) {
       const response = await fetch(url);
@@ -616,246 +588,135 @@
       return response.json();
     }
 
-    function formatDateTime(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
-    function formatShortDate(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short"
-      });
-    }
-
-    function timeAgo(dateStr) {
-      if (!dateStr) return "";
-      const d = new Date(dateStr);
-      const diff = (Date.now() - d.getTime()) / 1000;
-
-      if (diff < 3600) return `${Math.max(1, Math.round(diff / 60))}m ago`;
-      if (diff < 86400) return `${Math.round(diff / 3600)}h ago`;
-      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-    }
-
     function cleanText(value, fallback = "") {
       if (value === null || value === undefined || value === "") return fallback;
-      return String(value).trim();
+      return String(value).replace(/&nbsp;/g, " ").trim();
     }
 
-    function competitorScore(competitor) {
-      const score = competitor?.score;
-      if (score === null || score === undefined || score === "") return "—";
-      if (typeof score === "object") {
-        return cleanText(score.displayValue, "—");
-      }
-      return cleanText(score, "—");
+    function eventId(match) {
+      return cleanText(match.id, `${match.title}_${match.overview}`);
     }
 
-    function teamName(competitor) {
-      return (
-        competitor?.team?.shortDisplayName ||
-        competitor?.team?.displayName ||
-        competitor?.team?.name ||
-        "Team"
-      );
+    function teamName(teamObj) {
+      return cleanText(teamObj?.team, "Team");
     }
 
-    function eventId(event) {
-      return event?.id || `${event?.name || ""}_${event?.date || ""}`;
+    function teamRun(teamObj) {
+      return cleanText(teamObj?.run, "—");
     }
 
-    function eventStatus(event) {
-      const status = event?.competitions?.[0]?.status?.type;
-      if (!status) return "upcoming";
-      if (status.state === "in") return "live";
-      if (status.completed) return "final";
-      return "upcoming";
+    function parseMatches(payload) {
+      return Array.isArray(payload?.data?.matches) ? payload.data.matches : [];
     }
 
-    function eventStatusLabel(event) {
-      const status = event?.competitions?.[0]?.status?.type;
-      if (!status) return "Scheduled";
-      if (status.state === "in") {
-        const clock = cleanText(event?.competitions?.[0]?.status?.displayClock);
-        return clock ? `Live · ${clock}` : "Live";
-      }
-      if (status.completed) return "Final";
-      return "Upcoming";
-    }
-
-    function sortEvents(events, direction = "asc") {
-      return [...events].sort((a, b) => {
-        const aTime = new Date(a.date).getTime();
-        const bTime = new Date(b.date).getTime();
-        return direction === "asc" ? aTime - bTime : bTime - aTime;
-      });
-    }
-
-    function uniqueEvents(events) {
+    function uniqueMatches(matches) {
       const seen = new Set();
-      const list = [];
-      for (const event of events) {
-        const id = eventId(event);
-        if (seen.has(id)) continue;
+      const out = [];
+
+      for (const match of matches) {
+        const id = eventId(match);
+        if (!id || seen.has(id)) continue;
         seen.add(id);
-        list.push(event);
+        out.push(match);
       }
-      return list;
+
+      return out;
     }
 
-    function cardHTML(event) {
-      const competition = event?.competitions?.[0];
-      const competitors = competition?.competitors || [];
-      if (competitors.length < 2) return "";
+    function timeAndPlace(match) {
+      const date = cleanText(match?.timeAndPlace?.date);
+      const time = cleanText(match?.timeAndPlace?.time);
+      const place = cleanText(match?.timeAndPlace?.place);
 
-      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
-      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
-      const status = eventStatus(event);
-      const statusClass =
-        status === "live" ? "status-live" :
-        status === "final" ? "status-final" :
-        "status-upcoming";
+      return [date, time, place].filter(Boolean).join(" ");
+    }
 
-      const scoreA = competitorScore(home);
-      const scoreB = competitorScore(away);
+    function matchStatus(kind) {
+      if (kind === "live") return { label: "Live", className: "status-live" };
+      if (kind === "recent") return { label: "Final", className: "status-final" };
+      return { label: "Upcoming", className: "status-upcoming" };
+    }
 
-      const note =
-        cleanText(competition?.status?.type?.shortDetail) ||
-        cleanText(event?.status?.type?.shortDetail) ||
-        cleanText(event?.shortName);
+    function renderCard(match, kind) {
+      const teams = Array.isArray(match.teams) ? match.teams : [];
+      const first = teams[0] || {};
+      const second = teams[1] || {};
+      const status = matchStatus(kind);
+      const meta = timeAndPlace(match);
+      const title = cleanText(match.title, "Cricket Match");
+      const overview = cleanText(match.overview);
 
       return `
         <div class="match-card">
           <div class="card-top">
-            <div class="series-name">${cleanText(event?.season?.type?.name, "Match")} · ${cleanText(event?.shortName || event?.name, "Cricket Match")}</div>
-            <div class="status-badge ${statusClass}">${eventStatusLabel(event)}</div>
+            <div class="series-name">${title}</div>
+            <div class="status-badge ${status.className}">${status.label}</div>
           </div>
 
           <div class="teams">
             <div class="team-row">
-              <div class="team-name">${teamName(home)}</div>
-              <div class="team-score ${status === "upcoming" ? "muted" : ""}">${status === "upcoming" ? "Scheduled" : scoreA}</div>
+              <div class="team-name">${teamName(first)}</div>
+              <div class="team-score ${kind === "upcoming" ? "muted" : ""}">${kind === "upcoming" ? "Scheduled" : teamRun(first)}</div>
             </div>
 
             <div class="team-row">
-              <div class="team-name">${teamName(away)}</div>
-              <div class="team-score ${status === "upcoming" ? "muted" : ""}">${status === "upcoming" ? "Scheduled" : scoreB}</div>
+              <div class="team-name">${teamName(second)}</div>
+              <div class="team-score ${kind === "upcoming" ? "muted" : ""}">${kind === "upcoming" ? "Scheduled" : teamRun(second)}</div>
             </div>
           </div>
 
-          <div class="match-meta">
-            <div>${formatDateTime(event.date)}</div>
-            <div>${cleanText(competition?.venue?.fullName, "Venue TBA")}</div>
-          </div>
-
-          ${note ? `<div class="match-note">${note}</div>` : ""}
+          <div class="match-meta">${meta || "Match information not available"}</div>
+          ${overview ? `<div class="match-note">${overview}</div>` : ""}
         </div>
       `;
     }
 
-    function renderMatches(containerId, events, emptyText) {
+    function renderMatches(containerId, matches, kind, emptyText) {
       const container = document.getElementById(containerId);
 
-      if (!events.length) {
+      if (!matches.length) {
         container.innerHTML = `<div class="empty">${emptyText}</div>`;
         return;
       }
 
-      container.innerHTML = events.map(cardHTML).filter(Boolean).join("");
+      container.innerHTML = matches.map(match => renderCard(match, kind)).join("");
     }
 
-    function articleDescription(article) {
-      return (
-        cleanText(article.description) ||
-        cleanText(article.story) ||
-        cleanText(article.summary) ||
-        "No additional description available."
-      );
-    }
-
-    function articleImage(article) {
-      if (Array.isArray(article.images) && article.images.length) {
-        const item = article.images.find(img => img.url) || article.images[0];
-        return cleanText(item?.url);
-      }
-      return "";
-    }
-
-    function renderHeadlines(items) {
-      const container = document.getElementById("headlines-grid");
-
-      if (!items.length) {
-        container.innerHTML = `<div class="empty">No headlines available right now.</div>`;
-        return;
-      }
-
-      container.innerHTML = items.map(item => `
-        <div class="headline-card">
-          ${item.image ? `<img class="headline-img" src="${item.image}" alt="" onerror="this.style.display='none'">` : ""}
-          <div class="headline-body">
-            <div class="headline-tag">Cricket News</div>
-            <div class="headline-title">${item.title}</div>
-            <div class="headline-desc">${item.description}</div>
-            <div class="headline-time">${timeAgo(item.published)}</div>
+    function renderSummary(typeStats) {
+      const container = document.getElementById("summary-grid");
+      container.innerHTML = MATCH_TYPES.map(type => {
+        const stats = typeStats[type] || { live: 0, recent: 0, upcoming: 0 };
+        return `
+          <div class="mini-block">
+            <div class="mini-title">${type}</div>
+            <div class="mini-value">Live ${stats.live} · Recent ${stats.recent} · Upcoming ${stats.upcoming}</div>
           </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
-    async function collectScoreboardEvents() {
-      const today = new Date();
-      const offsets = [-2, -1, 0, 1, 2, 3, 4, 5];
-      const allEvents = [];
+    async function fetchByKind(kind) {
+      const results = await Promise.allSettled(
+        MATCH_TYPES.map(async (type) => {
+          const data = await fetchJSON(`${API_BASE}/${kind}?type=${encodeURIComponent(type)}`);
+          return {
+            type,
+            matches: parseMatches(data)
+          };
+        })
+      );
 
-      await Promise.allSettled(offsets.map(async offset => {
-        const target = addDays(today, offset);
-        try {
-          const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/scoreboard?dates=${toDateKey(target)}`);
-          if (Array.isArray(data?.events)) {
-            allEvents.push(...data.events);
-          }
-        } catch (e) {
-        }
-      }));
+      const typeStats = {};
+      const merged = [];
 
-      return uniqueEvents(allEvents);
-    }
-
-    async function collectNews() {
-      try {
-        const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/news`);
-        const articles = Array.isArray(data?.articles) ? data.articles : [];
-        const seen = new Set();
-        const items = [];
-
-        for (const article of articles) {
-          const title = cleanText(article.headline);
-          if (!title) continue;
-
-          const key = title.toLowerCase();
-          if (seen.has(key)) continue;
-          seen.add(key);
-
-          items.push({
-            title,
-            description: articleDescription(article),
-            image: articleImage(article),
-            published: article.published
-          });
-        }
-
-        return items.slice(0, 8);
-      } catch (e) {
-        return [];
+      for (const result of results) {
+        if (result.status !== "fulfilled") continue;
+        const { type, matches } = result.value;
+        typeStats[type] = matches.length;
+        merged.push(...matches);
       }
+
+      return { merged: uniqueMatches(merged), typeStats };
     }
 
     async function loadOverview() {
@@ -863,38 +724,34 @@
       document.getElementById("live-grid").innerHTML = `<div class="loading">Loading live matches...</div>`;
       document.getElementById("recent-grid").innerHTML = `<div class="loading">Loading recent results...</div>`;
       document.getElementById("upcoming-grid").innerHTML = `<div class="loading">Loading fixtures...</div>`;
-      document.getElementById("headlines-grid").innerHTML = `<div class="loading">Loading headlines...</div>`;
 
       try {
-        const [events, headlines] = await Promise.all([
-          collectScoreboardEvents(),
-          collectNews()
+        const [liveData, recentData, upcomingData] = await Promise.all([
+          fetchByKind("live"),
+          fetchByKind("recent"),
+          fetchByKind("upcoming")
         ]);
 
-        const now = Date.now();
+        const liveMatches = liveData.merged.slice(0, 6);
+        const recentMatches = recentData.merged.slice(0, 6);
+        const upcomingMatches = upcomingData.merged.slice(0, 6);
 
-        const liveEvents = sortEvents(
-          events.filter(event => eventStatus(event) === "live"),
-          "asc"
-        ).slice(0, 6);
+        renderMatches("live-grid", liveMatches, "live", "No live matches at the moment.");
+        renderMatches("recent-grid", recentMatches, "recent", "No recent matches found.");
+        renderMatches("upcoming-grid", upcomingMatches, "upcoming", "No upcoming fixtures found.");
 
-        const recentEvents = sortEvents(
-          events.filter(event => eventStatus(event) === "final" && new Date(event.date).getTime() <= now),
-          "desc"
-        ).slice(0, 6);
+        document.getElementById("live-count").textContent = String(liveData.merged.length);
+        document.getElementById("upcoming-count").textContent = String(upcomingData.merged.length);
 
-        const upcomingEvents = sortEvents(
-          events.filter(event => eventStatus(event) === "upcoming" && new Date(event.date).getTime() >= now - 30 * 60 * 1000),
-          "asc"
-        ).slice(0, 6);
-
-        renderMatches("live-grid", liveEvents, "No live matches at the moment.");
-        renderMatches("recent-grid", recentEvents, "No recent completed matches found.");
-        renderMatches("upcoming-grid", upcomingEvents, "No upcoming fixtures found.");
-        renderHeadlines(headlines);
-
-        document.getElementById("live-count").textContent = String(liveEvents.length);
-        document.getElementById("upcoming-count").textContent = String(upcomingEvents.length);
+        const mergedTypeStats = {};
+        for (const type of MATCH_TYPES) {
+          mergedTypeStats[type] = {
+            live: liveData.typeStats[type] || 0,
+            recent: recentData.typeStats[type] || 0,
+            upcoming: upcomingData.typeStats[type] || 0
+          };
+        }
+        renderSummary(mergedTypeStats);
 
         document.getElementById("last-updated").textContent =
           "Updated " + new Date().toLocaleTimeString("en-GB", {
@@ -905,7 +762,7 @@
         document.getElementById("live-grid").innerHTML = `<div class="error">Could not load live matches.</div>`;
         document.getElementById("recent-grid").innerHTML = `<div class="error">Could not load recent results.</div>`;
         document.getElementById("upcoming-grid").innerHTML = `<div class="error">Could not load fixtures.</div>`;
-        document.getElementById("headlines-grid").innerHTML = `<div class="error">Could not load headlines.</div>`;
+        document.getElementById("summary-grid").innerHTML = `<div class="mini-block"><div class="mini-title">Status</div><div class="mini-value">Update failed</div></div>`;
         document.getElementById("live-count").textContent = "—";
         document.getElementById("upcoming-count").textContent = "—";
         document.getElementById("last-updated").textContent = "Update failed";
