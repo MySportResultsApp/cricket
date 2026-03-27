@@ -144,7 +144,8 @@
     .summary-card,
     .fixture-card,
     .empty-box,
-    .error-box {
+    .error-box,
+    .filter-card {
       background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -249,6 +250,59 @@
       line-height: 1.45;
     }
 
+    .filter-card {
+      padding: 14px;
+      margin-bottom: 22px;
+    }
+
+    .filter-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .filter-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .filter-sub {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .chip:hover {
+      border-color: rgba(141,255,102,0.34);
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, rgba(141,255,102,0.18), rgba(67,209,125,0.12));
+      border-color: rgba(141,255,102,0.38);
+      color: var(--accent);
+    }
+
     .section {
       margin-bottom: 22px;
     }
@@ -318,18 +372,9 @@
       border-radius: 999px;
       padding: 6px 9px;
       white-space: nowrap;
-    }
-
-    .status-upcoming {
       background: rgba(110,216,255,0.12);
       color: var(--upcoming);
       border: 1px solid rgba(110,216,255,0.22);
-    }
-
-    .status-live {
-      background: rgba(141,255,102,0.14);
-      color: var(--live);
-      border: 1px solid rgba(141,255,102,0.28);
     }
 
     .teams {
@@ -413,7 +458,8 @@
       .summary-card,
       .fixture-card,
       .empty-box,
-      .error-box {
+      .error-box,
+      .filter-card {
         border-radius: 16px;
       }
 
@@ -433,7 +479,7 @@
     <header>
       <div class="brand">
         <h1>Cricket <span>Pulse</span></h1>
-        <p>Upcoming cricket fixtures with clean schedule cards and grouped match windows.</p>
+        <p>Upcoming cricket fixtures with schedule cards and match-type filters.</p>
       </div>
 
       <div class="header-side">
@@ -446,43 +492,61 @@
       <a href="index.html">Overview</a>
       <a href="live.html">Live</a>
       <a href="fixtures.html" class="active">Fixtures</a>
-      <a href="news.html">News</a>
+      <a href="recent.html">Recent</a>
     </nav>
 
     <section class="hero">
       <div class="hero-card">
         <div>
           <div class="hero-kicker">Fixtures Window</div>
-          <div class="hero-title">A schedule-first view for the next set of cricket matches, split into near-term and later upcoming games.</div>
-          <div class="hero-subtitle">This page prioritizes scheduled matches. Ongoing matches are filtered out here so the focus stays on what is coming next. Cards keep the layout app-like and easy to scan.</div>
+          <div class="hero-title">A schedule-first view for upcoming cricket matches across international, league, domestic and women categories.</div>
+          <div class="hero-subtitle">Use the type filters to narrow the feed or keep “All” active to merge everything into one fixtures stream. This page only shows scheduled matches.</div>
         </div>
 
         <div class="hero-strip">
-          <div class="pill">Near-term fixtures</div>
-          <div class="pill">Later upcoming list</div>
-          <div class="pill">Shared navigation</div>
-          <div class="pill">Compact mobile layout</div>
+          <div class="pill">All upcoming</div>
+          <div class="pill">International</div>
+          <div class="pill">League</div>
+          <div class="pill">Domestic</div>
+          <div class="pill">Women</div>
         </div>
       </div>
 
       <div class="summary-grid">
         <div class="summary-card">
-          <div class="summary-label">Next 24 Hours</div>
+          <div class="summary-label">Starting Soon</div>
           <div class="summary-value" id="soon-count">—</div>
-          <div class="summary-note">Fixtures starting in the next 24 hours.</div>
+          <div class="summary-note">Matches starting in the earliest part of the current upcoming feed.</div>
         </div>
 
         <div class="summary-card">
           <div class="summary-label">Upcoming Total</div>
           <div class="summary-value" id="upcoming-count">—</div>
-          <div class="summary-note">All upcoming matches collected in the current date window.</div>
+          <div class="summary-note">Count after the current filter is applied.</div>
         </div>
+      </div>
+    </section>
+
+    <section class="filter-card">
+      <div class="filter-head">
+        <div>
+          <div class="filter-title">Match Type Filter</div>
+          <div class="filter-sub">Switch between combined view and individual categories.</div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip active" data-type="all">All</button>
+        <button class="chip" data-type="international">International</button>
+        <button class="chip" data-type="league">League</button>
+        <button class="chip" data-type="domestic">Domestic</button>
+        <button class="chip" data-type="women">Women</button>
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div class="section-title">📍 Starting Soon <span class="section-badge">Next 24h</span></div>
+        <div class="section-title">📍 Starting Soon <span class="section-badge">Upcoming</span></div>
         <div class="section-sub">Closest scheduled matches first.</div>
       </div>
 
@@ -494,7 +558,7 @@
     <section class="section">
       <div class="section-head">
         <div class="section-title">📅 More Upcoming Fixtures</div>
-        <div class="section-sub">Later matches from the same schedule window.</div>
+        <div class="section-sub">Additional scheduled matches from the same feed.</div>
       </div>
 
       <div id="upcoming-grid" class="fixtures-grid">
@@ -508,18 +572,10 @@
   </div>
 
   <script>
-    const API_BASE = "https://site.api.espn.com/apis/site/v2/sports";
-    const CRICKET_PATH = "cricket/ipl";
-
-    function toDateKey(date) {
-      return date.toISOString().slice(0, 10).replace(/-/g, "");
-    }
-
-    function addDays(baseDate, amount) {
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + amount);
-      return d;
-    }
+    const API_BASE = "https://cricbuzz-live.vercel.app/v1/matches";
+    const MATCH_TYPES = ["international", "league", "domestic", "women"];
+    let currentType = "all";
+    const fixturesStore = {};
 
     async function fetchJSON(url) {
       const response = await fetch(url);
@@ -529,133 +585,113 @@
       return response.json();
     }
 
-    function formatDateTime(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
     function cleanText(value, fallback = "") {
       if (value === null || value === undefined || value === "") return fallback;
-      return String(value).trim();
+      return String(value).replace(/&nbsp;/g, " ").trim();
     }
 
-    function teamName(competitor) {
-      return (
-        competitor?.team?.shortDisplayName ||
-        competitor?.team?.displayName ||
-        competitor?.team?.name ||
-        "Team"
-      );
+    function eventId(match) {
+      return cleanText(match.id, `${match.title}_${match.overview}`);
     }
 
-    function eventId(event) {
-      return event?.id || `${event?.name || ""}_${event?.date || ""}`;
+    function parseMatches(payload) {
+      return Array.isArray(payload?.data?.matches) ? payload.data.matches : [];
     }
 
-    function eventStatus(event) {
-      const status = event?.competitions?.[0]?.status?.type;
-      if (!status) return "upcoming";
-      if (status.state === "in") return "live";
-      if (status.completed) return "final";
-      return "upcoming";
-    }
-
-    function sortEvents(events, direction = "asc") {
-      return [...events].sort((a, b) => {
-        const aTime = new Date(a.date).getTime();
-        const bTime = new Date(b.date).getTime();
-        return direction === "asc" ? aTime - bTime : bTime - aTime;
-      });
-    }
-
-    function uniqueEvents(events) {
+    function uniqueMatches(matches) {
       const seen = new Set();
-      const list = [];
-      for (const event of events) {
-        const id = eventId(event);
-        if (seen.has(id)) continue;
+      const out = [];
+
+      for (const match of matches) {
+        const id = eventId(match);
+        if (!id || seen.has(id)) continue;
         seen.add(id);
-        list.push(event);
+        out.push(match);
       }
-      return list;
+
+      return out;
     }
 
-    function fixtureCardHTML(event) {
-      const competition = event?.competitions?.[0];
-      const competitors = competition?.competitors || [];
-      if (competitors.length < 2) return "";
+    function teamName(teamObj) {
+      return cleanText(teamObj?.team, "Team");
+    }
 
-      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
-      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
+    function timeAndPlace(match) {
+      const date = cleanText(match?.timeAndPlace?.date);
+      const time = cleanText(match?.timeAndPlace?.time);
+      const place = cleanText(match?.timeAndPlace?.place);
+      return [date, time, place].filter(Boolean).join(" ");
+    }
 
-      const note =
-        cleanText(competition?.status?.type?.shortDetail) ||
-        cleanText(event?.status?.type?.shortDetail) ||
-        cleanText(event?.shortName);
+    function fixtureCardHTML(match) {
+      const teams = Array.isArray(match.teams) ? match.teams : [];
+      const first = teams[0] || {};
+      const second = teams[1] || {};
+      const title = cleanText(match.title, "Cricket Match");
+      const overview = cleanText(match.overview);
+      const meta = timeAndPlace(match);
 
       return `
         <div class="fixture-card">
           <div class="card-top">
-            <div class="series-name">${cleanText(event?.season?.type?.name, "Match")} · ${cleanText(event?.shortName || event?.name, "Cricket Match")}</div>
-            <div class="status-badge status-upcoming">Upcoming</div>
+            <div class="series-name">${title}</div>
+            <div class="status-badge">Upcoming</div>
           </div>
 
           <div class="teams">
             <div class="team-row">
-              <div class="team-name">${teamName(home)}</div>
-              <div class="team-side">Home</div>
+              <div class="team-name">${teamName(first)}</div>
+              <div class="team-side">Team 1</div>
             </div>
 
             <div class="team-row">
-              <div class="team-name">${teamName(away)}</div>
-              <div class="team-side">Away</div>
+              <div class="team-name">${teamName(second)}</div>
+              <div class="team-side">Team 2</div>
             </div>
           </div>
 
-          <div class="match-meta">
-            <div>${formatDateTime(event.date)}</div>
-            <div>${cleanText(competition?.venue?.fullName, "Venue TBA")}</div>
-          </div>
-
-          ${note ? `<div class="match-note">${note}</div>` : ""}
+          <div class="match-meta">${meta || "Match information not available"}</div>
+          ${overview ? `<div class="match-note">${overview}</div>` : ""}
         </div>
       `;
     }
 
-    function renderFixtures(containerId, events, emptyText) {
+    function renderFixtures(containerId, matches, emptyText) {
       const container = document.getElementById(containerId);
 
-      if (!events.length) {
+      if (!matches.length) {
         container.innerHTML = `<div class="empty-box">${emptyText}</div>`;
         return;
       }
 
-      container.innerHTML = events.map(fixtureCardHTML).filter(Boolean).join("");
+      container.innerHTML = matches.map(fixtureCardHTML).join("");
     }
 
-    async function collectScoreboardEvents() {
-      const today = new Date();
-      const offsets = [0, 1, 2, 3, 4, 5, 6, 7];
-      const allEvents = [];
+    function getFilteredMatches() {
+      if (currentType === "all") {
+        const merged = MATCH_TYPES.flatMap(type => fixturesStore[type] || []);
+        return uniqueMatches(merged);
+      }
+      return fixturesStore[currentType] || [];
+    }
 
-      await Promise.allSettled(offsets.map(async offset => {
-        const target = addDays(today, offset);
-        try {
-          const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/scoreboard?dates=${toDateKey(target)}`);
-          if (Array.isArray(data?.events)) {
-            allEvents.push(...data.events);
-          }
-        } catch (e) {
-        }
-      }));
+    function updateChips() {
+      document.querySelectorAll(".chip").forEach(chip => {
+        chip.classList.toggle("active", chip.dataset.type === currentType);
+      });
+    }
 
-      return uniqueEvents(allEvents);
+    function renderCurrentFixtures() {
+      const matches = getFilteredMatches();
+      const soon = matches.slice(0, 6);
+      const later = matches.slice(6, 18);
+
+      renderFixtures("soon-grid", soon, "No near-term fixtures available.");
+      renderFixtures("upcoming-grid", later, "No more upcoming fixtures found.");
+
+      document.getElementById("soon-count").textContent = String(soon.length);
+      document.getElementById("upcoming-count").textContent = String(matches.length);
+      updateChips();
     }
 
     async function loadFixturesPage() {
@@ -664,27 +700,24 @@
       document.getElementById("upcoming-grid").innerHTML = `<div class="empty-box">Loading upcoming fixtures...</div>`;
 
       try {
-        const events = await collectScoreboardEvents();
-        const now = Date.now();
-
-        const upcomingEvents = sortEvents(
-          events.filter(event => eventStatus(event) === "upcoming" && new Date(event.date).getTime() >= now),
-          "asc"
+        const results = await Promise.allSettled(
+          MATCH_TYPES.map(async (type) => {
+            const data = await fetchJSON(`${API_BASE}/upcoming?type=${encodeURIComponent(type)}`);
+            return { type, matches: parseMatches(data) };
+          })
         );
 
-        const soonEvents = upcomingEvents.filter(event => {
-          const diff = new Date(event.date).getTime() - now;
-          return diff >= 0 && diff <= 24 * 60 * 60 * 1000;
-        }).slice(0, 8);
+        for (const type of MATCH_TYPES) {
+          fixturesStore[type] = [];
+        }
 
-        const soonIds = new Set(soonEvents.map(event => eventId(event)));
-        const laterEvents = upcomingEvents.filter(event => !soonIds.has(eventId(event))).slice(0, 12);
+        for (const result of results) {
+          if (result.status !== "fulfilled") continue;
+          const { type, matches } = result.value;
+          fixturesStore[type] = uniqueMatches(matches);
+        }
 
-        renderFixtures("soon-grid", soonEvents, "No fixtures starting in the next 24 hours.");
-        renderFixtures("upcoming-grid", laterEvents, "No later upcoming fixtures found.");
-
-        document.getElementById("soon-count").textContent = String(soonEvents.length);
-        document.getElementById("upcoming-count").textContent = String(upcomingEvents.length);
+        renderCurrentFixtures();
 
         document.getElementById("last-updated").textContent =
           "Updated " + new Date().toLocaleTimeString("en-GB", {
@@ -699,6 +732,13 @@
         document.getElementById("last-updated").textContent = "Update failed";
       }
     }
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        currentType = chip.dataset.type;
+        renderCurrentFixtures();
+      });
+    });
 
     loadFixturesPage();
     setInterval(loadFixturesPage, 5 * 60 * 1000);
