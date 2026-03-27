@@ -16,8 +16,6 @@
       --text: #edf7f1;
       --muted: #8da59a;
       --live: #8dff66;
-      --upcoming: #6ed8ff;
-      --final: #9aaea6;
       --danger: #ff6b6b;
       --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
       --radius: 18px;
@@ -168,7 +166,7 @@
       top: -30px;
       width: 170px;
       height: 170px;
-      background: radial-gradient(circle, rgba(141,255,102,0.1) 0%, transparent 68%);
+      background: radial-gradient(circle, rgba(141,255,102,0.10) 0%, transparent 68%);
       pointer-events: none;
     }
 
@@ -318,9 +316,6 @@
       border-radius: 999px;
       padding: 6px 9px;
       white-space: nowrap;
-    }
-
-    .status-live {
       background: rgba(141,255,102,0.14);
       color: var(--live);
       border: 1px solid rgba(141,255,102,0.28);
@@ -441,7 +436,7 @@
       <a href="index.html">Overview</a>
       <a href="live.html" class="active">Live</a>
       <a href="fixtures.html">Fixtures</a>
-      <a href="news.html">News</a>
+      <a href="recent.html">Recent</a>
     </nav>
 
     <section class="hero">
@@ -449,14 +444,14 @@
         <div>
           <div class="hero-kicker">Live Cricket</div>
           <div class="hero-title">Focused on matches currently in progress, with a clean scoreboard-first layout.</div>
-          <div class="hero-subtitle">This page prioritizes ongoing matches only. If there are no live matches at the moment, a recent fallback block is shown below so the page still feels useful and active.</div>
+          <div class="hero-subtitle">This page pulls live matches from all four supported types and merges them into one feed. It also shows a per-type snapshot so you can see where the current action is.</div>
         </div>
 
         <div class="hero-strip">
-          <div class="pill">Live-first page</div>
-          <div class="pill">Auto-refresh every 60 sec</div>
-          <div class="pill">Compact score cards</div>
-          <div class="pill">Works with shared navigation</div>
+          <div class="pill">International</div>
+          <div class="pill">League</div>
+          <div class="pill">Domestic</div>
+          <div class="pill">Women</div>
         </div>
       </div>
 
@@ -464,13 +459,13 @@
         <div class="summary-card">
           <div class="summary-label">Live Matches</div>
           <div class="summary-value" id="live-count">—</div>
-          <div class="summary-note">Matches currently marked in progress by the feed.</div>
+          <div class="summary-note">All live matches found across the supported types.</div>
         </div>
 
         <div class="summary-card">
-          <div class="summary-label">Recent Fallback</div>
-          <div class="summary-value" id="recent-count">—</div>
-          <div class="summary-note">Shown below only when there are no live matches.</div>
+          <div class="summary-label">Types Active</div>
+          <div class="summary-value" id="active-types">—</div>
+          <div class="summary-note">How many match groups currently have live entries.</div>
         </div>
       </div>
     </section>
@@ -478,7 +473,7 @@
     <section class="section">
       <div class="section-head">
         <div class="section-title">🏏 Live Scorecards <span class="section-badge">Now</span></div>
-        <div class="section-sub">Current matches only.</div>
+        <div class="section-sub">Current live matches only.</div>
       </div>
 
       <div id="live-grid" class="matches-grid">
@@ -488,12 +483,12 @@
 
     <section class="section">
       <div class="section-head">
-        <div class="section-title">✅ Recent Matches</div>
-        <div class="section-sub">Fallback block when live action is unavailable.</div>
+        <div class="section-title">ℹ️ Type Snapshot</div>
+        <div class="section-sub">Quick live count by category.</div>
       </div>
 
-      <div id="recent-grid" class="matches-grid">
-        <div class="empty-box">Loading recent matches...</div>
+      <div id="type-grid" class="matches-grid">
+        <div class="empty-box">Loading type snapshot...</div>
       </div>
     </section>
 
@@ -503,18 +498,8 @@
   </div>
 
   <script>
-    const API_BASE = "https://site.api.espn.com/apis/site/v2/sports";
-    const CRICKET_PATH = "cricket/ipl";
-
-    function toDateKey(date) {
-      return date.toISOString().slice(0, 10).replace(/-/g, "");
-    }
-
-    function addDays(baseDate, amount) {
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + amount);
-      return d;
-    }
+    const API_BASE = "https://cricbuzz-live.vercel.app/v1/matches";
+    const MATCH_TYPES = ["international", "league", "domestic", "women"];
 
     async function fetchJSON(url) {
       const response = await fetch(url);
@@ -524,185 +509,140 @@
       return response.json();
     }
 
-    function formatDateTime(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
     function cleanText(value, fallback = "") {
       if (value === null || value === undefined || value === "") return fallback;
-      return String(value).trim();
+      return String(value).replace(/&nbsp;/g, " ").trim();
     }
 
-    function competitorScore(competitor) {
-      const score = competitor?.score;
-      if (score === null || score === undefined || score === "") return "—";
-      if (typeof score === "object") {
-        return cleanText(score.displayValue, "—");
-      }
-      return cleanText(score, "—");
+    function eventId(match) {
+      return cleanText(match.id, `${match.title}_${match.overview}`);
     }
 
-    function teamName(competitor) {
-      return (
-        competitor?.team?.shortDisplayName ||
-        competitor?.team?.displayName ||
-        competitor?.team?.name ||
-        "Team"
-      );
+    function teamName(teamObj) {
+      return cleanText(teamObj?.team, "Team");
     }
 
-    function eventId(event) {
-      return event?.id || `${event?.name || ""}_${event?.date || ""}`;
+    function teamRun(teamObj) {
+      return cleanText(teamObj?.run, "—");
     }
 
-    function eventStatus(event) {
-      const status = event?.competitions?.[0]?.status?.type;
-      if (!status) return "upcoming";
-      if (status.state === "in") return "live";
-      if (status.completed) return "final";
-      return "upcoming";
+    function parseMatches(payload) {
+      return Array.isArray(payload?.data?.matches) ? payload.data.matches : [];
     }
 
-    function eventStatusLabel(event) {
-      const status = event?.competitions?.[0]?.status?.type;
-      if (!status) return "Live";
-      const clock = cleanText(event?.competitions?.[0]?.status?.displayClock);
-      return clock ? `Live · ${clock}` : "Live";
-    }
-
-    function sortEvents(events, direction = "asc") {
-      return [...events].sort((a, b) => {
-        const aTime = new Date(a.date).getTime();
-        const bTime = new Date(b.date).getTime();
-        return direction === "asc" ? aTime - bTime : bTime - aTime;
-      });
-    }
-
-    function uniqueEvents(events) {
+    function uniqueMatches(matches) {
       const seen = new Set();
-      const list = [];
-      for (const event of events) {
-        const id = eventId(event);
-        if (seen.has(id)) continue;
+      const out = [];
+
+      for (const match of matches) {
+        const id = eventId(match);
+        if (!id || seen.has(id)) continue;
         seen.add(id);
-        list.push(event);
+        out.push(match);
       }
-      return list;
+
+      return out;
     }
 
-    function cardHTML(event, isLive) {
-      const competition = event?.competitions?.[0];
-      const competitors = competition?.competitors || [];
-      if (competitors.length < 2) return "";
+    function timeAndPlace(match) {
+      const date = cleanText(match?.timeAndPlace?.date);
+      const time = cleanText(match?.timeAndPlace?.time);
+      const place = cleanText(match?.timeAndPlace?.place);
+      return [date, time, place].filter(Boolean).join(" ");
+    }
 
-      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
-      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
-      const note =
-        cleanText(competition?.status?.type?.shortDetail) ||
-        cleanText(event?.status?.type?.shortDetail) ||
-        cleanText(event?.shortName);
+    function renderCard(match) {
+      const teams = Array.isArray(match.teams) ? match.teams : [];
+      const first = teams[0] || {};
+      const second = teams[1] || {};
+      const meta = timeAndPlace(match);
+      const title = cleanText(match.title, "Cricket Match");
+      const overview = cleanText(match.overview);
 
       return `
         <div class="match-card">
           <div class="card-top">
-            <div class="series-name">${cleanText(event?.season?.type?.name, "Match")} · ${cleanText(event?.shortName || event?.name, "Cricket Match")}</div>
-            <div class="status-badge status-live">${isLive ? eventStatusLabel(event) : "Recent"}</div>
+            <div class="series-name">${title}</div>
+            <div class="status-badge">Live</div>
           </div>
 
           <div class="teams">
             <div class="team-row">
-              <div class="team-name">${teamName(home)}</div>
-              <div class="team-score">${competitorScore(home)}</div>
+              <div class="team-name">${teamName(first)}</div>
+              <div class="team-score">${teamRun(first)}</div>
             </div>
 
             <div class="team-row">
-              <div class="team-name">${teamName(away)}</div>
-              <div class="team-score">${competitorScore(away)}</div>
+              <div class="team-name">${teamName(second)}</div>
+              <div class="team-score">${teamRun(second)}</div>
             </div>
           </div>
 
-          <div class="match-meta">
-            <div>${formatDateTime(event.date)}</div>
-            <div>${cleanText(competition?.venue?.fullName, "Venue TBA")}</div>
-          </div>
-
-          ${note ? `<div class="match-note">${note}</div>` : ""}
+          <div class="match-meta">${meta || "Match information not available"}</div>
+          ${overview ? `<div class="match-note">${overview}</div>` : ""}
         </div>
       `;
     }
 
-    function renderLive(containerId, events, emptyText) {
-      const container = document.getElementById(containerId);
-
-      if (!events.length) {
-        container.innerHTML = `<div class="empty-box">${emptyText}</div>`;
-        return;
-      }
-
-      container.innerHTML = events.map(event => cardHTML(event, true)).filter(Boolean).join("");
-    }
-
-    function renderRecent(containerId, events, emptyText) {
-      const container = document.getElementById(containerId);
-
-      if (!events.length) {
-        container.innerHTML = `<div class="empty-box">${emptyText}</div>`;
-        return;
-      }
-
-      container.innerHTML = events.map(event => cardHTML(event, false)).filter(Boolean).join("");
-    }
-
-    async function collectScoreboardEvents() {
-      const today = new Date();
-      const offsets = [-2, -1, 0, 1, 2];
-      const allEvents = [];
-
-      await Promise.allSettled(offsets.map(async offset => {
-        const target = addDays(today, offset);
-        try {
-          const data = await fetchJSON(`${API_BASE}/${CRICKET_PATH}/scoreboard?dates=${toDateKey(target)}`);
-          if (Array.isArray(data?.events)) {
-            allEvents.push(...data.events);
-          }
-        } catch (e) {
-        }
-      }));
-
-      return uniqueEvents(allEvents);
+    function renderTypeCard(type, count, sampleTitle) {
+      return `
+        <div class="match-card">
+          <div class="card-top">
+            <div class="series-name">${type}</div>
+            <div class="status-badge">${count} live</div>
+          </div>
+          <div class="match-note">${sampleTitle || "No live match currently available in this type."}</div>
+        </div>
+      `;
     }
 
     async function loadLivePage() {
       document.getElementById("last-updated").textContent = "Refreshing...";
       document.getElementById("live-grid").innerHTML = `<div class="empty-box">Loading live matches...</div>`;
-      document.getElementById("recent-grid").innerHTML = `<div class="empty-box">Loading recent matches...</div>`;
+      document.getElementById("type-grid").innerHTML = `<div class="empty-box">Loading type snapshot...</div>`;
 
       try {
-        const events = await collectScoreboardEvents();
-        const now = Date.now();
+        const results = await Promise.allSettled(
+          MATCH_TYPES.map(async (type) => {
+            const data = await fetchJSON(`${API_BASE}/live?type=${encodeURIComponent(type)}`);
+            return { type, matches: parseMatches(data) };
+          })
+        );
 
-        const liveEvents = sortEvents(
-          events.filter(event => eventStatus(event) === "live"),
-          "asc"
-        ).slice(0, 10);
+        const merged = [];
+        const typeCards = [];
+        let activeTypes = 0;
 
-        const recentEvents = sortEvents(
-          events.filter(event => eventStatus(event) === "final" && new Date(event.date).getTime() <= now),
-          "desc"
-        ).slice(0, 6);
+        for (const result of results) {
+          if (result.status !== "fulfilled") continue;
 
-        renderLive("live-grid", liveEvents, "No live matches at the moment.");
-        renderRecent("recent-grid", recentEvents, "No recent matches available.");
+          const { type, matches } = result.value;
+          merged.push(...matches);
 
-        document.getElementById("live-count").textContent = String(liveEvents.length);
-        document.getElementById("recent-count").textContent = String(recentEvents.length);
+          if (matches.length > 0) {
+            activeTypes += 1;
+          }
+
+          typeCards.push(
+            renderTypeCard(
+              type,
+              matches.length,
+              cleanText(matches[0]?.title)
+            )
+          );
+        }
+
+        const unique = uniqueMatches(merged);
+
+        if (!unique.length) {
+          document.getElementById("live-grid").innerHTML = `<div class="empty-box">No live matches at the moment.</div>`;
+        } else {
+          document.getElementById("live-grid").innerHTML = unique.map(renderCard).join("");
+        }
+
+        document.getElementById("type-grid").innerHTML = typeCards.join("");
+        document.getElementById("live-count").textContent = String(unique.length);
+        document.getElementById("active-types").textContent = String(activeTypes);
 
         document.getElementById("last-updated").textContent =
           "Updated " + new Date().toLocaleTimeString("en-GB", {
@@ -711,9 +651,9 @@
           });
       } catch (error) {
         document.getElementById("live-grid").innerHTML = `<div class="error-box">Could not load live matches.</div>`;
-        document.getElementById("recent-grid").innerHTML = `<div class="error-box">Could not load recent matches.</div>`;
+        document.getElementById("type-grid").innerHTML = `<div class="error-box">Could not load type snapshot.</div>`;
         document.getElementById("live-count").textContent = "—";
-        document.getElementById("recent-count").textContent = "—";
+        document.getElementById("active-types").textContent = "—";
         document.getElementById("last-updated").textContent = "Update failed";
       }
     }
