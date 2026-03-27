@@ -143,7 +143,9 @@
     .hero-card,
     .stat-card,
     .match-card,
-    .info-card {
+    .headline-card,
+    .empty-box,
+    .error-box {
       background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -290,6 +292,12 @@
       gap: 14px;
     }
 
+    .headlines-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 14px;
+    }
+
     .match-card {
       padding: 16px;
     }
@@ -329,12 +337,6 @@
       background: rgba(110,216,255,0.12);
       color: var(--upcoming);
       border: 1px solid rgba(110,216,255,0.22);
-    }
-
-    .status-final {
-      background: rgba(154,174,166,0.12);
-      color: var(--final);
-      border: 1px solid rgba(154,174,166,0.22);
     }
 
     .teams {
@@ -384,51 +386,62 @@
       line-height: 1.45;
     }
 
-    .info-card {
-      padding: 18px;
+    .headline-card {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
     }
 
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 14px;
+    .headline-img {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      background: #0b1511;
+      display: block;
     }
 
-    .mini-block {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.04);
-      border-radius: 14px;
+    .headline-body {
       padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .mini-title {
-      font-size: 0.74rem;
-      color: var(--muted);
+    .headline-tag {
+      color: var(--accent);
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-weight: 800;
-      margin-bottom: 8px;
     }
 
-    .mini-value {
-      font-size: 1rem;
+    .headline-title {
+      font-size: 0.96rem;
       font-weight: 800;
-      line-height: 1.35;
+      line-height: 1.38;
     }
 
-    .loading,
-    .empty,
-    .error {
-      text-align: center;
-      padding: 22px;
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
-      border: 1px solid var(--border);
+    .headline-desc {
+      color: #d6e4dc;
+      font-size: 0.84rem;
+      line-height: 1.52;
+    }
+
+    .headline-time {
       color: var(--muted);
-      box-shadow: var(--shadow);
+      font-size: 0.75rem;
+      margin-top: 2px;
     }
 
-    .error {
+    .empty-box,
+    .error-box {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .error-box {
       color: var(--danger);
     }
 
@@ -459,7 +472,9 @@
       .hero-card,
       .stat-card,
       .match-card,
-      .info-card {
+      .headline-card,
+      .empty-box,
+      .error-box {
         border-radius: 16px;
       }
 
@@ -471,6 +486,10 @@
       .team-score {
         text-align: left;
       }
+
+      .headline-img {
+        height: 160px;
+      }
     }
   </style>
 </head>
@@ -479,7 +498,7 @@
     <header>
       <div class="brand">
         <h1>Cricket <span>Pulse</span></h1>
-        <p>Live matches, recent results and upcoming fixtures in one place.</p>
+        <p>News, live scores and upcoming fixtures on one home screen.</p>
       </div>
 
       <div class="header-side">
@@ -492,93 +511,84 @@
       <a href="index.html" class="active">Overview</a>
       <a href="live.html">Live</a>
       <a href="fixtures.html">Fixtures</a>
-      <a href="recent.html">Recent</a>
+      <a href="news.html">News</a>
     </nav>
 
     <section class="hero">
       <div class="hero-card">
         <div>
-          <div class="hero-kicker">Cricket Dashboard</div>
-          <div class="hero-title">A cricket-only overview that pulls together live action, recent finishes and upcoming fixtures.</div>
-          <div class="hero-subtitle">Built around a simple four-page structure with shared navigation and real match cards. This overview combines multiple match categories so the screen still feels populated even when one category is quiet.</div>
+          <div class="hero-kicker">Cricket Hub</div>
+          <div class="hero-title">A fuller cricket home screen with headlines first, then live action and upcoming fixtures.</div>
+          <div class="hero-subtitle">This layout is built to avoid the empty-app feeling: real cricket news fills the top, while live matches and upcoming fixtures keep the sports layer active underneath.</div>
         </div>
 
         <div class="hero-strip">
-          <div class="pill">Overview</div>
-          <div class="pill">Live</div>
-          <div class="pill">Fixtures</div>
-          <div class="pill">Recent</div>
+          <div class="pill">Real news</div>
+          <div class="pill">Live matches</div>
+          <div class="pill">Upcoming fixtures</div>
+          <div class="pill">Shared navigation</div>
         </div>
       </div>
 
       <div class="stats">
         <div class="stat-card">
-          <div class="stat-label">Live Matches</div>
-          <div class="stat-value" id="live-count">—</div>
-          <div class="stat-note">Current in-progress matches collected across all supported match types.</div>
+          <div class="stat-label">News Cards</div>
+          <div class="stat-value" id="news-count">—</div>
+          <div class="stat-note">Top headlines shown on the home screen.</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-label">Upcoming Matches</div>
-          <div class="stat-value" id="upcoming-count">—</div>
-          <div class="stat-note">Scheduled matches currently available in the upcoming feed.</div>
+          <div class="stat-label">Live Matches</div>
+          <div class="stat-value" id="live-count">—</div>
+          <div class="stat-note">Current live scorecards found across all match types.</div>
         </div>
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div class="section-title">🏏 Live Matches <span class="section-badge">Now</span></div>
-        <div class="section-sub">In-progress scorecards shown first.</div>
+        <div class="section-title">📰 Top Cricket Headlines <span class="section-badge">Latest</span></div>
+        <div class="section-sub">Cards are intentionally not clickable.</div>
       </div>
-      <div id="live-grid" class="matches-grid">
-        <div class="loading">Loading live matches...</div>
+      <div id="headlines-grid" class="headlines-grid">
+        <div class="empty-box">Loading headlines...</div>
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div class="section-title">✅ Recent Results</div>
-        <div class="section-sub">Most recent completed matches.</div>
+        <div class="section-title">🏏 Live Matches</div>
+        <div class="section-sub">Current in-progress scorecards.</div>
       </div>
-      <div id="recent-grid" class="matches-grid">
-        <div class="loading">Loading recent results...</div>
+      <div id="live-grid" class="matches-grid">
+        <div class="empty-box">Loading live matches...</div>
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
         <div class="section-title">📅 Upcoming Fixtures</div>
-        <div class="section-sub">Nearest scheduled matches from the feed.</div>
+        <div class="section-sub">Nearest scheduled matches.</div>
       </div>
       <div id="upcoming-grid" class="matches-grid">
-        <div class="loading">Loading fixtures...</div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div class="section-title">ℹ️ Feed Snapshot</div>
-        <div class="section-sub">Quick breakdown by type.</div>
-      </div>
-      <div class="info-card">
-        <div class="info-grid" id="summary-grid">
-          <div class="mini-block">
-            <div class="mini-title">International</div>
-            <div class="mini-value">Loading...</div>
-          </div>
-        </div>
+        <div class="empty-box">Loading upcoming fixtures...</div>
       </div>
     </section>
 
     <footer>
-      Cricket Pulse · Auto-refresh every 5 minutes
+      Cricket Pulse · Overview refreshes every 5 minutes
     </footer>
   </div>
 
   <script>
-    const API_BASE = "https://cricbuzz-live.vercel.app/v1/matches";
+    const MATCH_API_BASE = "https://cricbuzz-live.vercel.app/v1/matches";
     const MATCH_TYPES = ["international", "league", "domestic", "women"];
+
+    const NEWS_FEEDS = [
+      "https://news.google.com/rss/search?q=cricket&hl=en-US&gl=US&ceid=US:en",
+      "https://news.google.com/rss/search?q=IPL%20cricket&hl=en-US&gl=US&ceid=US:en",
+      "https://news.google.com/rss/search?q=ICC%20cricket&hl=en-US&gl=US&ceid=US:en"
+    ];
 
     async function fetchJSON(url) {
       const response = await fetch(url);
@@ -588,25 +598,26 @@
       return response.json();
     }
 
+    async function fetchRSS(url) {
+      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.text();
+    }
+
     function cleanText(value, fallback = "") {
       if (value === null || value === undefined || value === "") return fallback;
-      return String(value).replace(/&nbsp;/g, " ").trim();
-    }
-
-    function eventId(match) {
-      return cleanText(match.id, `${match.title}_${match.overview}`);
-    }
-
-    function teamName(teamObj) {
-      return cleanText(teamObj?.team, "Team");
-    }
-
-    function teamRun(teamObj) {
-      return cleanText(teamObj?.run, "—");
+      return String(value).replace(/\s+/g, " ").replace(/&nbsp;/g, " ").trim();
     }
 
     function parseMatches(payload) {
       return Array.isArray(payload?.data?.matches) ? payload.data.matches : [];
+    }
+
+    function eventId(match) {
+      return cleanText(match.id, `${match.title}_${match.overview}`);
     }
 
     function uniqueMatches(matches) {
@@ -623,45 +634,51 @@
       return out;
     }
 
+    function teamName(teamObj) {
+      return cleanText(teamObj?.team, "Team");
+    }
+
+    function teamRun(teamObj) {
+      return cleanText(teamObj?.run, "—");
+    }
+
     function timeAndPlace(match) {
       const date = cleanText(match?.timeAndPlace?.date);
       const time = cleanText(match?.timeAndPlace?.time);
       const place = cleanText(match?.timeAndPlace?.place);
-
       return [date, time, place].filter(Boolean).join(" ");
     }
 
-    function matchStatus(kind) {
-      if (kind === "live") return { label: "Live", className: "status-live" };
-      if (kind === "recent") return { label: "Final", className: "status-final" };
-      return { label: "Upcoming", className: "status-upcoming" };
-    }
-
-    function renderCard(match, kind) {
+    function renderMatchCard(match, mode) {
       const teams = Array.isArray(match.teams) ? match.teams : [];
       const first = teams[0] || {};
       const second = teams[1] || {};
-      const status = matchStatus(kind);
-      const meta = timeAndPlace(match);
       const title = cleanText(match.title, "Cricket Match");
       const overview = cleanText(match.overview);
+      const meta = timeAndPlace(match);
 
       return `
         <div class="match-card">
           <div class="card-top">
             <div class="series-name">${title}</div>
-            <div class="status-badge ${status.className}">${status.label}</div>
+            <div class="status-badge ${mode === "live" ? "status-live" : "status-upcoming"}">
+              ${mode === "live" ? "Live" : "Upcoming"}
+            </div>
           </div>
 
           <div class="teams">
             <div class="team-row">
               <div class="team-name">${teamName(first)}</div>
-              <div class="team-score ${kind === "upcoming" ? "muted" : ""}">${kind === "upcoming" ? "Scheduled" : teamRun(first)}</div>
+              <div class="team-score ${mode === "upcoming" ? "muted" : ""}">
+                ${mode === "upcoming" ? "Scheduled" : teamRun(first)}
+              </div>
             </div>
 
             <div class="team-row">
               <div class="team-name">${teamName(second)}</div>
-              <div class="team-score ${kind === "upcoming" ? "muted" : ""}">${kind === "upcoming" ? "Scheduled" : teamRun(second)}</div>
+              <div class="team-score ${mode === "upcoming" ? "muted" : ""}">
+                ${mode === "upcoming" ? "Scheduled" : teamRun(second)}
+              </div>
             </div>
           </div>
 
@@ -671,87 +688,188 @@
       `;
     }
 
-    function renderMatches(containerId, matches, kind, emptyText) {
+    function renderMatches(containerId, matches, mode, emptyText) {
       const container = document.getElementById(containerId);
 
       if (!matches.length) {
-        container.innerHTML = `<div class="empty">${emptyText}</div>`;
+        container.innerHTML = `<div class="empty-box">${emptyText}</div>`;
         return;
       }
 
-      container.innerHTML = matches.map(match => renderCard(match, kind)).join("");
+      container.innerHTML = matches.map(match => renderMatchCard(match, mode)).join("");
     }
 
-    function renderSummary(typeStats) {
-      const container = document.getElementById("summary-grid");
-      container.innerHTML = MATCH_TYPES.map(type => {
-        const stats = typeStats[type] || { live: 0, recent: 0, upcoming: 0 };
-        return `
-          <div class="mini-block">
-            <div class="mini-title">${type}</div>
-            <div class="mini-value">Live ${stats.live} · Recent ${stats.recent} · Upcoming ${stats.upcoming}</div>
+    function parseGoogleSource(title) {
+      const clean = cleanText(title);
+      const parts = clean.split(" - ");
+      if (parts.length >= 2) {
+        return {
+          title: cleanText(parts.slice(0, -1).join(" - "), clean),
+          source: cleanText(parts[parts.length - 1], "Cricket News")
+        };
+      }
+      return {
+        title: clean,
+        source: "Cricket News"
+      };
+    }
+
+    function getNodeText(node, selector) {
+      const found = node.querySelector(selector);
+      return cleanText(found ? found.textContent : "");
+    }
+
+    function articleDescription(item) {
+      const desc = getNodeText(item, "description");
+      if (!desc) return "No additional description available.";
+
+      const tmp = document.createElement("div");
+      tmp.innerHTML = desc;
+      const text = cleanText(tmp.textContent || tmp.innerText || "");
+      return text || "No additional description available.";
+    }
+
+    function articleImage(item) {
+      const mediaContent = item.getElementsByTagName("media:content");
+      if (mediaContent && mediaContent.length > 0) {
+        const url = cleanText(mediaContent[0].getAttribute("url"));
+        if (url) return url;
+      }
+
+      const description = getNodeText(item, "description");
+      if (description) {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = description;
+        const img = tmp.querySelector("img");
+        if (img && img.src) return img.src;
+      }
+
+      return "";
+    }
+
+    function parseRSS(xmlText) {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, "text/xml");
+      const items = Array.from(xml.querySelectorAll("item"));
+
+      return items.map(item => {
+        const rawTitle = getNodeText(item, "title");
+        const parsed = parseGoogleSource(rawTitle);
+
+        return {
+          title: parsed.title,
+          source: parsed.source,
+          description: articleDescription(item),
+          image: articleImage(item),
+          published: getNodeText(item, "pubDate")
+        };
+      }).filter(item => item.title);
+    }
+
+    function uniqueArticles(items) {
+      const seen = new Set();
+      const out = [];
+
+      for (const item of items) {
+        const key = item.title.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(item);
+      }
+
+      return out;
+    }
+
+    function timeAgo(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return cleanText(dateStr);
+
+      const diff = (Date.now() - d.getTime()) / 1000;
+      if (diff < 3600) return `${Math.max(1, Math.round(diff / 60))}m ago`;
+      if (diff < 86400) return `${Math.round(diff / 3600)}h ago`;
+
+      return d.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    function renderHeadlines(items) {
+      const container = document.getElementById("headlines-grid");
+
+      if (!items.length) {
+        container.innerHTML = `<div class="empty-box">No headlines available right now.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div class="headline-card">
+          ${item.image ? `<img class="headline-img" src="${item.image}" alt="" onerror="this.style.display='none'">` : ""}
+          <div class="headline-body">
+            <div class="headline-tag">${item.source}</div>
+            <div class="headline-title">${item.title}</div>
+            <div class="headline-desc">${item.description}</div>
+            <div class="headline-time">${timeAgo(item.published)}</div>
           </div>
-        `;
-      }).join("");
+        </div>
+      `).join("");
     }
 
-    async function fetchByKind(kind) {
+    async function fetchMatchKind(kind) {
       const results = await Promise.allSettled(
         MATCH_TYPES.map(async (type) => {
-          const data = await fetchJSON(`${API_BASE}/${kind}?type=${encodeURIComponent(type)}`);
-          return {
-            type,
-            matches: parseMatches(data)
-          };
+          const data = await fetchJSON(`${MATCH_API_BASE}/${kind}?type=${encodeURIComponent(type)}`);
+          return parseMatches(data);
         })
       );
 
-      const typeStats = {};
       const merged = [];
-
       for (const result of results) {
-        if (result.status !== "fulfilled") continue;
-        const { type, matches } = result.value;
-        typeStats[type] = matches.length;
-        merged.push(...matches);
+        if (result.status === "fulfilled") {
+          merged.push(...result.value);
+        }
+      }
+      return uniqueMatches(merged);
+    }
+
+    async function fetchTopNews() {
+      const results = await Promise.allSettled(
+        NEWS_FEEDS.map(async (url) => {
+          const xml = await fetchRSS(url);
+          return parseRSS(xml);
+        })
+      );
+
+      const merged = [];
+      for (const result of results) {
+        if (result.status === "fulfilled") {
+          merged.push(...result.value);
+        }
       }
 
-      return { merged: uniqueMatches(merged), typeStats };
+      return uniqueArticles(merged).slice(0, 6);
     }
 
     async function loadOverview() {
       document.getElementById("last-updated").textContent = "Refreshing...";
-      document.getElementById("live-grid").innerHTML = `<div class="loading">Loading live matches...</div>`;
-      document.getElementById("recent-grid").innerHTML = `<div class="loading">Loading recent results...</div>`;
-      document.getElementById("upcoming-grid").innerHTML = `<div class="loading">Loading fixtures...</div>`;
+      document.getElementById("headlines-grid").innerHTML = `<div class="empty-box">Loading headlines...</div>`;
+      document.getElementById("live-grid").innerHTML = `<div class="empty-box">Loading live matches...</div>`;
+      document.getElementById("upcoming-grid").innerHTML = `<div class="empty-box">Loading upcoming fixtures...</div>`;
 
       try {
-        const [liveData, recentData, upcomingData] = await Promise.all([
-          fetchByKind("live"),
-          fetchByKind("recent"),
-          fetchByKind("upcoming")
+        const [newsItems, liveMatches, upcomingMatches] = await Promise.all([
+          fetchTopNews(),
+          fetchMatchKind("live"),
+          fetchMatchKind("upcoming")
         ]);
 
-        const liveMatches = liveData.merged.slice(0, 6);
-        const recentMatches = recentData.merged.slice(0, 6);
-        const upcomingMatches = upcomingData.merged.slice(0, 6);
+        renderHeadlines(newsItems);
+        renderMatches("live-grid", liveMatches.slice(0, 4), "live", "No live matches at the moment.");
+        renderMatches("upcoming-grid", upcomingMatches.slice(0, 4), "upcoming", "No upcoming fixtures found.");
 
-        renderMatches("live-grid", liveMatches, "live", "No live matches at the moment.");
-        renderMatches("recent-grid", recentMatches, "recent", "No recent matches found.");
-        renderMatches("upcoming-grid", upcomingMatches, "upcoming", "No upcoming fixtures found.");
-
-        document.getElementById("live-count").textContent = String(liveData.merged.length);
-        document.getElementById("upcoming-count").textContent = String(upcomingData.merged.length);
-
-        const mergedTypeStats = {};
-        for (const type of MATCH_TYPES) {
-          mergedTypeStats[type] = {
-            live: liveData.typeStats[type] || 0,
-            recent: recentData.typeStats[type] || 0,
-            upcoming: upcomingData.typeStats[type] || 0
-          };
-        }
-        renderSummary(mergedTypeStats);
+        document.getElementById("news-count").textContent = String(newsItems.length);
+        document.getElementById("live-count").textContent = String(liveMatches.length);
 
         document.getElementById("last-updated").textContent =
           "Updated " + new Date().toLocaleTimeString("en-GB", {
@@ -759,12 +877,11 @@
             minute: "2-digit"
           });
       } catch (error) {
-        document.getElementById("live-grid").innerHTML = `<div class="error">Could not load live matches.</div>`;
-        document.getElementById("recent-grid").innerHTML = `<div class="error">Could not load recent results.</div>`;
-        document.getElementById("upcoming-grid").innerHTML = `<div class="error">Could not load fixtures.</div>`;
-        document.getElementById("summary-grid").innerHTML = `<div class="mini-block"><div class="mini-title">Status</div><div class="mini-value">Update failed</div></div>`;
+        document.getElementById("headlines-grid").innerHTML = `<div class="error-box">Could not load headlines.</div>`;
+        document.getElementById("live-grid").innerHTML = `<div class="error-box">Could not load live matches.</div>`;
+        document.getElementById("upcoming-grid").innerHTML = `<div class="error-box">Could not load upcoming fixtures.</div>`;
+        document.getElementById("news-count").textContent = "—";
         document.getElementById("live-count").textContent = "—";
-        document.getElementById("upcoming-count").textContent = "—";
         document.getElementById("last-updated").textContent = "Update failed";
       }
     }
