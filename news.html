@@ -1,1 +1,763 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Pulse - News</title>
+  <style>
+    :root {
+      --bg: #07110d;
+      --bg-soft: #0c1712;
+      --panel: #0f1d17;
+      --panel-2: #13241c;
+      --border: #21362c;
+      --accent: #8dff66;
+      --accent-2: #43d17d;
+      --text: #edf7f1;
+      --muted: #8da59a;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(141,255,102,0.07), transparent 28%),
+        radial-gradient(circle at top left, rgba(67,209,125,0.06), transparent 24%),
+        linear-gradient(180deg, #06100c 0%, #09140f 100%);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand h1 span {
+      color: var(--accent);
+    }
+
+    .brand p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.92rem;
+    }
+
+    .header-side {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #last-updated {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .refresh-btn {
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07110d;
+      font-weight: 800;
+      font-size: 0.84rem;
+      padding: 10px 15px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .refresh-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: 0.15s ease;
+    }
+
+    .nav a:hover {
+      border-color: rgba(141,255,102,0.34);
+      color: #fff;
+    }
+
+    .nav a.active {
+      background: linear-gradient(135deg, rgba(141,255,102,0.18), rgba(67,209,125,0.12));
+      border-color: rgba(141,255,102,0.38);
+      color: var(--accent);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-card,
+    .summary-card,
+    .news-card,
+    .empty-box,
+    .error-box,
+    .filter-card {
+      background: linear-gradient(180deg, rgba(18,33,26,0.96), rgba(12,24,19,0.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 22px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 170px;
+      height: 170px;
+      background: radial-gradient(circle, rgba(141,255,102,0.10) 0%, transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.45rem, 3vw, 2.35rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      max-width: 760px;
+    }
+
+    .hero-subtitle {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 760px;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-card {
+      padding: 18px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .summary-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+    }
+
+    .summary-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .filter-card {
+      padding: 14px;
+      margin-bottom: 22px;
+    }
+
+    .filter-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .filter-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .filter-sub {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .chip:hover {
+      border-color: rgba(141,255,102,0.34);
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, rgba(141,255,102,0.18), rgba(67,209,125,0.12));
+      border-color: rgba(141,255,102,0.38);
+      color: var(--accent);
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-badge {
+      font-size: 0.7rem;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #07110d;
+      background: var(--accent);
+      font-weight: 800;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    .news-card {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .news-img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      background: #0b1511;
+      display: block;
+    }
+
+    .news-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .news-tag {
+      color: var(--accent);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .news-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      line-height: 1.38;
+    }
+
+    .news-desc {
+      color: #d6e4dc;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
+    .news-time {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+
+    .empty-box,
+    .error-box {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
+
+    .error-box {
+      color: var(--danger);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .brand h1 {
+        font-size: 1.55rem;
+      }
+
+      .hero-card,
+      .summary-card,
+      .news-card,
+      .empty-box,
+      .error-box,
+      .filter-card {
+        border-radius: 16px;
+      }
+
+      .news-img {
+        height: 170px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <h1>Cricket <span>Pulse</span></h1>
+        <p>Real cricket headlines with larger cards and no clickable links.</p>
+      </div>
+
+      <div class="header-side">
+        <span id="last-updated">Loading...</span>
+        <button class="refresh-btn" onclick="loadNewsPage()">↻ Refresh</button>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <a href="index.html">Overview</a>
+      <a href="live.html">Live</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="news.html" class="active">News</a>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-card">
+        <div>
+          <div class="hero-kicker">Cricket Headlines</div>
+          <div class="hero-title">A content-heavy cricket news page with real feed data and non-clickable cards.</div>
+          <div class="hero-subtitle">The cards below are populated from cricket-related RSS searches, merged, deduplicated and shown as static content blocks so the app feels filled even when match feeds are light.</div>
+        </div>
+
+        <div class="hero-strip">
+          <div class="pill">Cricket</div>
+          <div class="pill">IPL</div>
+          <div class="pill">ICC</div>
+          <div class="pill">Test Cricket</div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">Articles Shown</div>
+          <div class="summary-value" id="news-count">—</div>
+          <div class="summary-note">Visible cards after merging and duplicate filtering.</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-label">Current Feed</div>
+          <div class="summary-value" id="feed-label">All</div>
+          <div class="summary-note">Use the topic filter to narrow the headlines.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="filter-card">
+      <div class="filter-head">
+        <div>
+          <div class="filter-title">News Topic Filter</div>
+          <div class="filter-sub">Switch between broad and narrow cricket headline groups.</div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip active" data-topic="all">All</button>
+        <button class="chip" data-topic="cricket">Cricket</button>
+        <button class="chip" data-topic="ipl">IPL</button>
+        <button class="chip" data-topic="icc">ICC</button>
+        <button class="chip" data-topic="test">Test Cricket</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">📰 Latest Cricket News <span class="section-badge">Feed</span></div>
+        <div class="section-sub">Cards are visual only and do not navigate anywhere.</div>
+      </div>
+
+      <div id="news-grid" class="news-grid">
+        <div class="empty-box">Loading news...</div>
+      </div>
+    </section>
+
+    <footer>
+      Cricket Pulse · News page refreshes every 10 minutes
+    </footer>
+  </div>
+
+  <script>
+    const FEEDS = {
+      cricket: "https://news.google.com/rss/search?q=cricket&hl=en-US&gl=US&ceid=US:en",
+      ipl: "https://news.google.com/rss/search?q=IPL%20cricket&hl=en-US&gl=US&ceid=US:en",
+      icc: "https://news.google.com/rss/search?q=ICC%20cricket&hl=en-US&gl=US&ceid=US:en",
+      test: "https://news.google.com/rss/search?q=test%20cricket&hl=en-US&gl=US&ceid=US:en"
+    };
+
+    const FEED_LABELS = {
+      all: "All",
+      cricket: "Cricket",
+      ipl: "IPL",
+      icc: "ICC",
+      test: "Test"
+    };
+
+    const newsStore = {
+      cricket: [],
+      ipl: [],
+      icc: [],
+      test: []
+    };
+
+    let currentTopic = "all";
+
+    async function fetchRSS(url) {
+      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.text();
+    }
+
+    function cleanText(value, fallback = "") {
+      if (value === null || value === undefined || value === "") return fallback;
+      return String(value).replace(/\s+/g, " ").trim();
+    }
+
+    function timeAgo(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return cleanText(dateStr);
+
+      const diff = (Date.now() - d.getTime()) / 1000;
+
+      if (diff < 3600) return `${Math.max(1, Math.round(diff / 60))}m ago`;
+      if (diff < 86400) return `${Math.round(diff / 3600)}h ago`;
+      return d.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    function parseGoogleSource(title) {
+      const clean = cleanText(title);
+      const parts = clean.split(" - ");
+      if (parts.length >= 2) {
+        const source = parts[parts.length - 1];
+        const titleOnly = parts.slice(0, -1).join(" - ");
+        return {
+          title: cleanText(titleOnly, clean),
+          source: cleanText(source, "Cricket News")
+        };
+      }
+
+      return {
+        title: clean,
+        source: "Cricket News"
+      };
+    }
+
+    function getText(node, selector) {
+      const found = node.querySelector(selector);
+      return cleanText(found ? found.textContent : "");
+    }
+
+    function articleDescription(item) {
+      const desc = getText(item, "description");
+      if (!desc) return "No additional description available.";
+
+      const tmp = document.createElement("div");
+      tmp.innerHTML = desc;
+      const text = cleanText(tmp.textContent || tmp.innerText || "");
+      return text || "No additional description available.";
+    }
+
+    function articleImage(item) {
+      const mediaContent = item.getElementsByTagName("media:content");
+      if (mediaContent && mediaContent.length > 0) {
+        const url = cleanText(mediaContent[0].getAttribute("url"));
+        if (url) return url;
+      }
+
+      const description = getText(item, "description");
+      if (description) {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = description;
+        const img = tmp.querySelector("img");
+        if (img && img.src) return img.src;
+      }
+
+      return "";
+    }
+
+    function parseRSS(xmlText) {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, "text/xml");
+      const items = Array.from(xml.querySelectorAll("item"));
+
+      return items.map(item => {
+        const rawTitle = getText(item, "title");
+        const parsed = parseGoogleSource(rawTitle);
+
+        return {
+          title: parsed.title,
+          source: parsed.source,
+          description: articleDescription(item),
+          image: articleImage(item),
+          published: getText(item, "pubDate")
+        };
+      }).filter(item => item.title);
+    }
+
+    function uniqueArticles(items) {
+      const seen = new Set();
+      const out = [];
+
+      for (const item of items) {
+        const key = item.title.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(item);
+      }
+
+      return out;
+    }
+
+    function getFilteredArticles() {
+      if (currentTopic === "all") {
+        return uniqueArticles([
+          ...newsStore.cricket,
+          ...newsStore.ipl,
+          ...newsStore.icc,
+          ...newsStore.test
+        ]);
+      }
+
+      return newsStore[currentTopic] || [];
+    }
+
+    function renderNews(items) {
+      const container = document.getElementById("news-grid");
+
+      if (!items.length) {
+        container.innerHTML = `<div class="empty-box">No news available right now.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div class="news-card">
+          ${item.image ? `<img class="news-img" src="${item.image}" alt="" onerror="this.style.display='none'">` : ""}
+          <div class="news-body">
+            <div class="news-tag">${item.source}</div>
+            <div class="news-title">${item.title}</div>
+            <div class="news-desc">${item.description}</div>
+            <div class="news-time">${timeAgo(item.published)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function updateChips() {
+      document.querySelectorAll(".chip").forEach(chip => {
+        chip.classList.toggle("active", chip.dataset.topic === currentTopic);
+      });
+    }
+
+    function renderCurrentNews() {
+      const items = getFilteredArticles().slice(0, 24);
+      renderNews(items);
+      document.getElementById("news-count").textContent = String(items.length);
+      document.getElementById("feed-label").textContent = FEED_LABELS[currentTopic] || "All";
+      updateChips();
+    }
+
+    async function loadNewsPage() {
+      document.getElementById("last-updated").textContent = "Refreshing...";
+      document.getElementById("news-grid").innerHTML = `<div class="empty-box">Loading news...</div>`;
+
+      try {
+        const results = await Promise.allSettled(
+          Object.entries(FEEDS).map(async ([key, url]) => {
+            const xmlText = await fetchRSS(url);
+            return { key, items: uniqueArticles(parseRSS(xmlText)) };
+          })
+        );
+
+        for (const key of Object.keys(newsStore)) {
+          newsStore[key] = [];
+        }
+
+        for (const result of results) {
+          if (result.status !== "fulfilled") continue;
+          newsStore[result.value.key] = result.value.items;
+        }
+
+        renderCurrentNews();
+
+        document.getElementById("last-updated").textContent =
+          "Updated " + new Date().toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+      } catch (error) {
+        document.getElementById("news-grid").innerHTML = `<div class="error-box">Could not load news.</div>`;
+        document.getElementById("news-count").textContent = "—";
+        document.getElementById("feed-label").textContent = "Error";
+        document.getElementById("last-updated").textContent = "Update failed";
+      }
+    }
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        currentTopic = chip.dataset.topic;
+        renderCurrentNews();
+      });
+    });
+
+    loadNewsPage();
+    setInterval(loadNewsPage, 10 * 60 * 1000);
+  </script>
+</body>
+</html>
